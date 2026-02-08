@@ -658,6 +658,9 @@
                 <button class="download-btn" onclick="downloadScenes()">
                     📋 장면 데이터 다운로드
                 </button>
+                <button class="download-btn" onclick="goToPreview()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    🎬 프리뷰 & 편집하기
+                </button>
             </div>
         </div>
     </div>
@@ -871,6 +874,17 @@
             if (currentResult) {
                 const filename = currentResult.scene_file.split('/').pop();
                 window.location.href = `/api/download/scenes/${filename}`;
+            }
+        }
+
+        function goToPreview() {
+            if (currentResult) {
+                // 결과 데이터를 세션에 저장
+                sessionStorage.setItem('videoResult', JSON.stringify(currentResult));
+                // 프리뷰 페이지로 이동
+                window.location.href = '/preview';
+            } else {
+                alert('생성된 비디오 데이터가 없습니다.');
             }
         }
     </script>

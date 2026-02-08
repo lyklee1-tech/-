@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 비디오 프리뷰 & 편집</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 20px;
+        }
+
+        /* 왼쪽: 프리뷰 영역 */
+        .preview-section {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .video-preview {
+            background: #000;
+            border-radius: 8px;
+            aspect-ratio: 9/16;
+            max-height: 700px;
+            margin: 0 auto 20px auto;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-preview.ratio-1-1 { aspect-ratio: 1/1; }
+        .video-preview.ratio-3-4 { aspect-ratio: 3/4; }
+        .video-preview.ratio-9-16 { aspect-ratio: 9/16; }
+        .video-preview.ratio-16-9 { aspect-ratio: 16/9; }
+
+        .subtitle-overlay {
+            position: absolute;
+            width: 90%;
+            text-align: center;
+            padding: 10px 20px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            word-wrap: break-word;
+        }
+
+        .subtitle-overlay.position-top { top: 50px; }
+        .subtitle-overlay.position-center { top: 50%; transform: translateY(-50%); }
+        .subtitle-overlay.position-bottom { bottom: 50px; }
+
+        .subtitle-overlay.align-left { text-align: left; }
+        .subtitle-overlay.align-center { text-align: center; }
+        .subtitle-overlay.align-right { text-align: right; }
+
+        /* 오디오 플레이어 */
+        .audio-player {
+            background: #3a3a3a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .play-btn {
+            width: 50px;
+            height: 50px;
+            background: #667eea;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .play-btn:hover {
+            background: #764ba2;
+            transform: scale(1.1);
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: #555;
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        .time-display {
+            font-size: 14px;
+            color: #ccc;
+            min-width: 100px;
+            text-align: right;
+        }
+
+        /* 타임라인 */
+        .timeline {
+            background: #3a3a3a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .timeline h3 {
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .timeline-track {
+            background: #2a2a2a;
+            height: 100px;
+            border-radius: 6px;
+            position: relative;
+            overflow-x: auto;
+            padding: 10px;
+        }
+
+        .scene-block {
+            display: inline-block;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 6px;
+            margin-right: 5px;
+            padding: 10px;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            vertical-align: top;
+        }
+
+        .scene-block:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.5);
+        }
+
+        .scene-block.active {
+            border: 3px solid #FFD700;
+        }
+
+        /* 오른쪽: 편집 패널 */
+        .edit-panel {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 20px;
+            max-height: 900px;
+            overflow-y: auto;
+        }
+
+        .panel-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #444;
+        }
+
+        .panel-section:last-child {
+            border-bottom: none;
+        }
+
+        .panel-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .preset-card {
+            background: #3a3a3a;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .preset-card:hover {
+            background: #4a4a4a;
+        }
+
+        .preset-card.selected {
+            border-color: #667eea;
+            background: #4a4a4a;
+        }
+
+        .preset-icon {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .preset-name {
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .preset-desc {
+            font-size: 0.75em;
+            color: #aaa;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-size: 0.9em;
+        }
+
+        .form-group input[type="number"],
+        .form-group input[type="text"],
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            background: #3a3a3a;
+            border: 1px solid #555;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .form-group input[type="color"] {
+            width: 100%;
+            height: 40px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .form-group input[type="range"] {
+            width: 100%;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .toggle-btn {
+            padding: 10px;
+            background: #3a3a3a;
+            border: 2px solid #555;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85em;
+        }
+
+        .toggle-btn:hover {
+            background: #4a4a4a;
+        }
+
+        .toggle-btn.active {
+            background: #667eea;
+            border-color: #667eea;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #3a3a3a;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4a4a4a;
+        }
+
+        .scene-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .scene-item {
+            background: #3a3a3a;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .scene-item:hover {
+            background: #4a4a4a;
+        }
+
+        .scene-item.active {
+            border-left: 4px solid #667eea;
+        }
+
+        .scene-text {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .scene-duration {
+            font-size: 0.75em;
+            color: #aaa;
+        }
+
+        /* 스크롤바 스타일링 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #2a2a2a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 비디오 프리뷰 & 편집</h1>
+            <p>자막 스타일을 편집하고 실시간으로 확인하세요</p>
+        </div>
+
+        <div class="layout">
+            <!-- 왼쪽: 프리뷰 영역 -->
+            <div class="preview-section">
+                <div class="video-preview ratio-9-16" id="videoPreview">
+                    <div class="subtitle-overlay position-bottom align-center" id="subtitleOverlay">
+                        비트코인이 오늘 10% 급등했습니다
+                    </div>
+                </div>
+
+                <!-- 오디오 플레이어 -->
+                <div class="audio-player">
+                    <div class="audio-controls">
+                        <button class="play-btn" id="playBtn">▶</button>
+                        <div class="progress-bar" id="progressBar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="time-display" id="timeDisplay">0:00 / 0:00</div>
+                    </div>
+                    <audio id="audioPlayer" style="display: none;"></audio>
+                </div>
+
+                <!-- 타임라인 -->
+                <div class="timeline">
+                    <h3>📹 타임라인</h3>
+                    <div class="timeline-track" id="timelineTrack">
+                        <!-- 장면 블록들이 동적으로 추가됩니다 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 오른쪽: 편집 패널 -->
+            <div class="edit-panel">
+                <!-- 자막 프리셋 -->
+                <div class="panel-section">
+                    <h3>✨ 자막 프리셋</h3>
+                    <div class="preset-grid" id="subtitlePresets">
+                        {% for key, preset in subtitles.items() %}
+                        <div class="preset-card" data-preset="{{ key }}" onclick="applySubtitlePreset('{{ key }}')">
+                            <div class="preset-icon">{{ preset.icon }}</div>
+                            <div class="preset-name">{{ preset.name }}</div>
+                            <div class="preset-desc">{{ preset.description }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- 폰트 설정 -->
+                <div class="panel-section">
+                    <h3>🔤 폰트 설정</h3>
+                    
+                    <div class="form-group">
+                        <label>폰트</label>
+                        <select id="fontFamily" onchange="updateSubtitle()">
+                            <option value="Noto Sans KR">Noto Sans KR</option>
+                            <option value="Pretendard">Pretendard</option>
+                            <option value="Gmarket Sans">Gmarket Sans</option>
+                            <option value="Noto Serif KR">Noto Serif KR</option>
+                            <option value="Roboto">Roboto</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>크기: <span id="fontSizeValue">48</span>px</label>
+                        <input type="range" id="fontSize" min="24" max="80" value="48" onchange="updateSubtitle()">
+                    </div>
+
+                    <div class="form-group">
+                        <label>굵기</label>
+                        <div class="button-group">
+                            <button class="toggle-btn" data-weight="normal" onclick="selectFontWeight('normal')">보통</button>
+                            <button class="toggle-btn active" data-weight="bold" onclick="selectFontWeight('bold')">굵게</button>
+                            <button class="toggle-btn" data-weight="black" onclick="selectFontWeight('black')">매우굵게</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 색상 설정 -->
+                <div class="panel-section">
+                    <h3>🎨 색상 설정</h3>
+                    
+                    <div class="form-group">
+                        <label>텍스트 색상</label>
+                        <input type="color" id="textColor" value="#FFFFFF" onchange="updateSubtitle()">
+                    </div>
+
+                    <div class="form-group">
+                        <label>배경 색상</label>
+                        <input type="color" id="bgColor" value="#000000" onchange="updateSubtitle()">
+                    </div>
+
+                    <div class="form-group">
+                        <label>배경 투명도: <span id="bgOpacityValue">70</span>%</label>
+                        <input type="range" id="bgOpacity" min="0" max="100" value="70" onchange="updateSubtitle()">
+                    </div>
+
+                    <div class="form-group">
+                        <label>외곽선</label>
+                        <div class="button-group">
+                            <button class="toggle-btn active" data-outline="true" onclick="toggleOutline(true)">있음</button>
+                            <button class="toggle-btn" data-outline="false" onclick="toggleOutline(false)">없음</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="outlineSettings">
+                        <label>외곽선 두께: <span id="outlineWidthValue">3</span>px</label>
+                        <input type="range" id="outlineWidth" min="1" max="8" value="3" onchange="updateSubtitle()">
+                    </div>
+                </div>
+
+                <!-- 위치 설정 -->
+                <div class="panel-section">
+                    <h3>📍 위치 설정</h3>
+                    
+                    <div class="form-group">
+                        <label>세로 위치</label>
+                        <div class="button-group">
+                            <button class="toggle-btn" data-position="top" onclick="selectPosition('top')">상단</button>
+                            <button class="toggle-btn" data-position="center" onclick="selectPosition('center')">중앙</button>
+                            <button class="toggle-btn active" data-position="bottom" onclick="selectPosition('bottom')">하단</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>가로 정렬</label>
+                        <div class="button-group">
+                            <button class="toggle-btn" data-align="left" onclick="selectAlign('left')">왼쪽</button>
+                            <button class="toggle-btn active" data-align="center" onclick="selectAlign('center')">중앙</button>
+                            <button class="toggle-btn" data-align="right" onclick="selectAlign('right')">오른쪽</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 장면 목록 -->
+                <div class="panel-section">
+                    <h3>📝 장면 목록</h3>
+                    <div class="scene-list" id="sceneList">
+                        <!-- 장면들이 동적으로 추가됩니다 -->
+                    </div>
+                </div>
+
+                <!-- 액션 버튼 -->
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="resetSettings()">초기화</button>
+                    <button class="btn btn-primary" onclick="saveSettings()">설정 저장</button>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="goBack()">← 돌아가기</button>
+                    <button class="btn btn-primary" onclick="generateVideo()">🎬 최종 생성</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 자막 프리셋 데이터
+        const subtitlePresetsData = {{ subtitles|tojson }};
+        
+        // 현재 설정
+        let currentSettings = {
+            fontFamily: 'Noto Sans KR',
+            fontSize: 48,
+            fontWeight: 'bold',
+            textColor: '#FFFFFF',
+            bgColor: '#000000',
+            bgOpacity: 0.7,
+            outline: true,
+            outlineWidth: 3,
+            position: 'bottom',
+            align: 'center'
+        };
+
+        // 자막 프리셋 적용
+        function applySubtitlePreset(presetKey) {
+            const preset = subtitlePresetsData[presetKey];
+            if (!preset) return;
+
+            // 프리셋 카드 활성화
+            document.querySelectorAll('.preset-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`[data-preset="${presetKey}"]`).classList.add('selected');
+
+            // 설정 적용
+            currentSettings = {
+                fontFamily: preset.font_family,
+                fontSize: preset.font_size,
+                fontWeight: preset.font_weight,
+                textColor: preset.color,
+                bgColor: preset.bg_color,
+                bgOpacity: preset.bg_opacity,
+                outline: preset.outline,
+                outlineWidth: preset.outline_width,
+                position: preset.position,
+                align: preset.align
+            };
+
+            // UI 업데이트
+            document.getElementById('fontFamily').value = currentSettings.fontFamily;
+            document.getElementById('fontSize').value = currentSettings.fontSize;
+            document.getElementById('fontSizeValue').textContent = currentSettings.fontSize;
+            document.getElementById('textColor').value = currentSettings.textColor;
+            document.getElementById('bgColor').value = currentSettings.bgColor;
+            document.getElementById('bgOpacity').value = Math.round(currentSettings.bgOpacity * 100);
+            document.getElementById('bgOpacityValue').textContent = Math.round(currentSettings.bgOpacity * 100);
+            document.getElementById('outlineWidth').value = currentSettings.outlineWidth;
+            document.getElementById('outlineWidthValue').textContent = currentSettings.outlineWidth;
+
+            // 버튼 상태 업데이트
+            updateButtonStates();
+            updateSubtitle();
+        }
+
+        // 버튼 상태 업데이트
+        function updateButtonStates() {
+            // 폰트 굵기
+            document.querySelectorAll('[data-weight]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.weight === currentSettings.fontWeight);
+            });
+
+            // 외곽선
+            document.querySelectorAll('[data-outline]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.outline === String(currentSettings.outline));
+            });
+
+            // 위치
+            document.querySelectorAll('[data-position]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.position === currentSettings.position);
+            });
+
+            // 정렬
+            document.querySelectorAll('[data-align]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.align === currentSettings.align);
+            });
+
+            // 외곽선 설정 표시/숨김
+            document.getElementById('outlineSettings').style.display = currentSettings.outline ? 'block' : 'none';
+        }
+
+        // 자막 업데이트
+        function updateSubtitle() {
+            const subtitle = document.getElementById('subtitleOverlay');
+
+            // 폰트 설정
+            currentSettings.fontFamily = document.getElementById('fontFamily').value;
+            currentSettings.fontSize = document.getElementById('fontSize').value;
+            document.getElementById('fontSizeValue').textContent = currentSettings.fontSize;
+
+            subtitle.style.fontFamily = currentSettings.fontFamily;
+            subtitle.style.fontSize = currentSettings.fontSize + 'px';
+            subtitle.style.fontWeight = currentSettings.fontWeight;
+
+            // 색상 설정
+            currentSettings.textColor = document.getElementById('textColor').value;
+            currentSettings.bgColor = document.getElementById('bgColor').value;
+            currentSettings.bgOpacity = document.getElementById('bgOpacity').value / 100;
+            document.getElementById('bgOpacityValue').textContent = document.getElementById('bgOpacity').value;
+
+            subtitle.style.color = currentSettings.textColor;
+            subtitle.style.backgroundColor = currentSettings.bgColor + Math.round(currentSettings.bgOpacity * 255).toString(16).padStart(2, '0');
+
+            // 외곽선
+            if (currentSettings.outline) {
+                currentSettings.outlineWidth = document.getElementById('outlineWidth').value;
+                document.getElementById('outlineWidthValue').textContent = currentSettings.outlineWidth;
+                subtitle.style.textShadow = `
+                    -${currentSettings.outlineWidth}px -${currentSettings.outlineWidth}px 0 #000,
+                    ${currentSettings.outlineWidth}px -${currentSettings.outlineWidth}px 0 #000,
+                    -${currentSettings.outlineWidth}px ${currentSettings.outlineWidth}px 0 #000,
+                    ${currentSettings.outlineWidth}px ${currentSettings.outlineWidth}px 0 #000
+                `;
+            } else {
+                subtitle.style.textShadow = 'none';
+            }
+
+            // 위치 업데이트
+            subtitle.className = `subtitle-overlay position-${currentSettings.position} align-${currentSettings.align}`;
+        }
+
+        // 폰트 굵기 선택
+        function selectFontWeight(weight) {
+            currentSettings.fontWeight = weight;
+            updateButtonStates();
+            updateSubtitle();
+        }
+
+        // 외곽선 토글
+        function toggleOutline(enabled) {
+            currentSettings.outline = enabled;
+            updateButtonStates();
+            updateSubtitle();
+        }
+
+        // 위치 선택
+        function selectPosition(position) {
+            currentSettings.position = position;
+            updateButtonStates();
+            updateSubtitle();
+        }
+
+        // 정렬 선택
+        function selectAlign(align) {
+            currentSettings.align = align;
+            updateButtonStates();
+            updateSubtitle();
+        }
+
+        // 설정 초기화
+        function resetSettings() {
+            applySubtitlePreset('youtube_default');
+        }
+
+        // 설정 저장
+        function saveSettings() {
+            localStorage.setItem('subtitleSettings', JSON.stringify(currentSettings));
+            alert('✅ 설정이 저장되었습니다!');
+        }
+
+        // 돌아가기
+        function goBack() {
+            window.location.href = '/';
+        }
+
+        // 최종 생성
+        function generateVideo() {
+            alert('🎬 최종 비디오 생성 기능은 곧 추가됩니다!');
+        }
+
+        // 페이지 로드 시 기본 프리셋 적용
+        window.addEventListener('DOMContentLoaded', () => {
+            applySubtitlePreset('youtube_default');
+        });
+    </script>
+</body>
+</html>

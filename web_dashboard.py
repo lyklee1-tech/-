@@ -155,6 +155,112 @@ VOICE_PRESETS = {
     }
 }
 
+# 자막 스타일 프리셋
+SUBTITLE_PRESETS = {
+    'youtube_default': {
+        'name': 'YouTube 기본',
+        'description': '가독성 좋은 기본 스타일',
+        'icon': '📺',
+        'font_family': 'Noto Sans KR',
+        'font_size': 48,
+        'font_weight': 'bold',
+        'color': '#FFFFFF',
+        'bg_color': '#000000',
+        'bg_opacity': 0.7,
+        'position': 'bottom',
+        'align': 'center',
+        'outline': True,
+        'outline_color': '#000000',
+        'outline_width': 3,
+        'animation': 'fade'
+    },
+    'shorts_trendy': {
+        'name': 'Shorts 트렌디',
+        'description': 'MZ세대 감성',
+        'icon': '⚡',
+        'font_family': 'Pretendard',
+        'font_size': 56,
+        'font_weight': 'black',
+        'color': '#FFFF00',
+        'bg_color': '#FF0080',
+        'bg_opacity': 0,
+        'position': 'center',
+        'align': 'center',
+        'outline': True,
+        'outline_color': '#000000',
+        'outline_width': 4,
+        'animation': 'bounce'
+    },
+    'minimal_clean': {
+        'name': '미니멀 클린',
+        'description': '깔끔하고 전문적인',
+        'icon': '✨',
+        'font_family': 'Noto Sans KR',
+        'font_size': 42,
+        'font_weight': 'normal',
+        'color': '#FFFFFF',
+        'bg_color': 'transparent',
+        'bg_opacity': 0,
+        'position': 'bottom',
+        'align': 'center',
+        'outline': True,
+        'outline_color': '#000000',
+        'outline_width': 2,
+        'animation': 'none'
+    },
+    'bold_impact': {
+        'name': '굵은 임팩트',
+        'description': '강렬한 인상',
+        'icon': '💥',
+        'font_family': 'Gmarket Sans',
+        'font_size': 64,
+        'font_weight': 'black',
+        'color': '#FF3333',
+        'bg_color': '#FFFFFF',
+        'bg_opacity': 0.9,
+        'position': 'top',
+        'align': 'center',
+        'outline': False,
+        'outline_color': '#000000',
+        'outline_width': 0,
+        'animation': 'slide'
+    },
+    'news_anchor': {
+        'name': '뉴스 앵커',
+        'description': '뉴스 자막 스타일',
+        'icon': '📰',
+        'font_family': 'Noto Sans KR',
+        'font_size': 40,
+        'font_weight': 'medium',
+        'color': '#FFFFFF',
+        'bg_color': '#1E3A8A',
+        'bg_opacity': 0.95,
+        'position': 'bottom',
+        'align': 'left',
+        'outline': False,
+        'outline_color': '#000000',
+        'outline_width': 0,
+        'animation': 'typewriter'
+    },
+    'cinematic': {
+        'name': '시네마틱',
+        'description': '영화 자막 느낌',
+        'icon': '🎬',
+        'font_family': 'Noto Serif KR',
+        'font_size': 44,
+        'font_weight': 'normal',
+        'color': '#F0F0F0',
+        'bg_color': 'transparent',
+        'bg_opacity': 0,
+        'position': 'bottom',
+        'align': 'center',
+        'outline': True,
+        'outline_color': '#000000',
+        'outline_width': 2,
+        'animation': 'fade'
+    }
+}
+
 
 @app.route('/')
 def index():
@@ -162,7 +268,15 @@ def index():
     return render_template('dashboard.html', 
                          styles=STYLE_TEMPLATES,
                          durations=DURATION_PRESETS,
-                         voices=VOICE_PRESETS)
+                         voices=VOICE_PRESETS,
+                         subtitles=SUBTITLE_PRESETS)
+
+
+@app.route('/preview')
+def preview():
+    """프리뷰 & 편집 페이지"""
+    return render_template('preview.html',
+                         subtitles=SUBTITLE_PRESETS)
 
 
 @app.route('/api/generate', methods=['POST'])
