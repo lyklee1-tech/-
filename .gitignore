@@ -1,0 +1,62 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# Environment variables
+.env
+.env.local
+
+# API Keys and credentials
+config/api_keys.yaml
+config/credentials.json
+*.json
+!config/config.yaml
+
+# Data directories
+data/raw/*
+data/processed/*
+data/scripts/*
+data/audio/*
+data/videos/*
+!data/.gitkeep
+
+# Logs
+logs/*
+*.log
+!logs/.gitkeep
+
+# OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Build files
+build/
+dist/
+*.egg-info/

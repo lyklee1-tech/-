@@ -1,0 +1,50 @@
+# Core dependencies
+python-dotenv==1.0.0
+pyyaml==6.0.1
+requests==2.31.0
+
+# Data collection
+beautifulsoup4==4.12.2
+feedparser==6.0.10
+yfinance==0.2.32
+alpha-vantage==2.3.1
+newsapi-python==0.2.7
+
+# AI & Script generation
+openai==1.6.1
+
+# Text-to-Speech
+google-cloud-texttospeech==2.16.0
+elevenlabs==0.2.26
+gtts==2.4.0
+
+# Video & Image processing
+moviepy==1.0.3
+pillow==10.1.0
+opencv-python==4.8.1.78
+numpy==1.24.3
+matplotlib==3.8.2
+plotly==5.18.0
+
+# YouTube API
+google-api-python-client==2.108.0
+google-auth-oauthlib==1.1.0
+google-auth-httplib2==0.1.1
+
+# Scheduling
+schedule==1.2.0
+APScheduler==3.10.4
+
+# Database (optional)
+sqlalchemy==2.0.23
+pymongo==4.6.0
+
+# Utilities
+tqdm==4.66.1
+loguru==0.7.2
+python-slugify==8.0.1
+pytz==2023.3.post1
+
+# Testing
+pytest==7.4.3
+pytest-cov==4.1.0

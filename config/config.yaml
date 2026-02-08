@@ -1,0 +1,272 @@
+# 비디오 설정
+video:
+  duration: 60  # 초
+  resolution: "1080x1920"  # Shorts 최적 해상도
+  fps: 30
+  format: "mp4"
+  codec: "libx264"
+  audio_codec: "aac"
+
+# 스크립트 설정
+script:
+  style: "경제사냥꾼"  # 참고 채널 스타일
+  tone: "전문적이면서 친근하게"
+  target_audience: "2030 투자자"
+  min_length: 150  # 글자
+  max_length: 200  # 글자
+  hook_required: true  # 처음 3초 후킹 멘트
+  call_to_action: true  # 마지막 CTA
+  
+  # 스크립트 구조
+  structure:
+    - hook: "충격적인 팩트나 질문으로 시작"
+    - main_content: "핵심 정보 전달"
+    - data_visualization: "수치/차트 설명"
+    - conclusion: "결론 및 인사이트"
+    - cta: "구독/좋아요 유도"
+
+# TTS 설정
+tts:
+  provider: "google"  # google, elevenlabs, gtts
+  voice: "ko-KR-Neural2-C"  # Google TTS 한국어 목소리
+  speed: 1.0  # 말하기 속도
+  pitch: 0  # 음높이
+  language: "ko-KR"
+  
+  # ElevenLabs 설정 (선택)
+  elevenlabs:
+    voice_id: "21m00Tcm4TlvDq8ikWAM"  # Rachel voice
+    model: "eleven_multilingual_v2"
+    stability: 0.5
+    similarity_boost: 0.75
+
+# 데이터 수집 설정
+data_collection:
+  # 뉴스 소스
+  news_sources:
+    - "한국경제"
+    - "매일경제"
+    - "서울경제"
+    - "뉴스핌"
+    - "연합인포맥스"
+  
+  # 주식 데이터
+  stock:
+    symbols:
+      - "^KS11"  # KOSPI
+      - "^KQ11"  # KOSDAQ
+      - "005930.KS"  # 삼성전자
+      - "^IXIC"  # NASDAQ
+      - "^GSPC"  # S&P 500
+    interval: "1h"
+  
+  # 암호화폐
+  crypto:
+    symbols:
+      - "BTC-USD"
+      - "ETH-USD"
+      - "XRP-USD"
+  
+  # 환율
+  forex:
+    pairs:
+      - "USD/KRW"
+      - "EUR/KRW"
+      - "JPY/KRW"
+      - "CNY/KRW"
+  
+  # 수집 주기
+  refresh_interval: 3600  # 1시간 (초)
+
+# 유튜브 업로드 설정
+youtube:
+  auto_upload: true
+  visibility: "public"  # public, private, unlisted
+  category: "25"  # News & Politics
+  language: "ko"
+  default_tags:
+    - "경제"
+    - "투자"
+    - "주식"
+    - "재테크"
+    - "경제뉴스"
+    - "shorts"
+  
+  # 제목 생성 패턴
+  title_patterns:
+    - "{주제} | {핵심키워드}"
+    - "충격! {핵심내용}"
+    - "{수치} 달성한 {대상}"
+    - "지금 꼭 알아야 할 {주제}"
+  
+  # 썸네일 설정
+  thumbnail:
+    width: 1280
+    height: 720
+    font_size: 80
+    bold_text: true
+    background_color: "#1a1a2e"
+    text_color: "#eef2f7"
+
+# 스케줄러 설정
+scheduler:
+  enabled: true
+  mode: "hourly"  # hourly, daily, custom
+  
+  # 시간별 실행
+  hourly:
+    interval: 2  # 2시간마다
+  
+  # 일별 실행 시간
+  daily:
+    times:
+      - "09:00"
+      - "12:00"
+      - "15:00"
+      - "18:00"
+      - "21:00"
+  
+  # 커스텀 cron 표현식
+  custom:
+    cron: "0 */2 * * *"  # 2시간마다
+  
+  # 에러 핸들링
+  retry:
+    max_attempts: 3
+    delay: 300  # 5분 (초)
+
+# 로깅 설정
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  format: "[{time:YYYY-MM-DD HH:mm:ss}] {level} | {message}"
+  rotation: "500 MB"
+  retention: "7 days"
+  
+  # 파일 로그
+  file:
+    enabled: true
+    path: "logs/app.log"
+  
+  # 콘솔 로그
+  console:
+    enabled: true
+    colorize: true
+
+# 자막 설정
+subtitles:
+  enabled: true
+  font: "NanumGothicBold"
+  font_size: 60
+  font_color: "white"
+  outline_color: "black"
+  outline_width: 3
+  position: "center"
+  animation: "word"  # word, char, none
+  
+  # 타이밍
+  timing:
+    auto_sync: true
+    words_per_second: 3
+
+# 배경 영상/이미지 설정
+background:
+  type: "video"  # video, image, gradient
+  
+  # 비디오 배경
+  video:
+    sources:
+      - "data/backgrounds/stock_chart.mp4"
+      - "data/backgrounds/city_timelapse.mp4"
+      - "data/backgrounds/office.mp4"
+    blur: false
+    opacity: 0.7
+  
+  # 이미지 배경
+  image:
+    sources:
+      - "data/backgrounds/gradient_1.png"
+      - "data/backgrounds/financial_bg.png"
+    duration: 5  # 각 이미지 표시 시간 (초)
+  
+  # 그라데이션 배경
+  gradient:
+    colors:
+      - "#0f2027"
+      - "#203a43"
+      - "#2c5364"
+
+# 차트 생성 설정
+charts:
+  enabled: true
+  library: "matplotlib"  # matplotlib, plotly
+  style: "dark"
+  
+  # 차트 타입별 설정
+  types:
+    line:
+      linewidth: 3
+      color: "#00ff88"
+    bar:
+      color: "#ff6b6b"
+    pie:
+      explode: [0.1, 0, 0]
+  
+  # 애니메이션
+  animation:
+    enabled: true
+    duration: 2  # 초
+
+# 데이터베이스 설정 (선택)
+database:
+  enabled: false
+  type: "mongodb"  # mongodb, sqlite
+  
+  # MongoDB
+  mongodb:
+    uri: "mongodb://localhost:27017/"
+    database: "economic_shorts"
+    collections:
+      - "news"
+      - "scripts"
+      - "videos"
+      - "analytics"
+  
+  # SQLite
+  sqlite:
+    path: "data/database.db"
+
+# 알림 설정
+notifications:
+  enabled: true
+  
+  # 이메일 알림
+  email:
+    enabled: false
+    smtp_server: "smtp.gmail.com"
+    smtp_port: 587
+    from_email: "your-email@gmail.com"
+    to_email: "your-email@gmail.com"
+  
+  # 슬랙 알림
+  slack:
+    enabled: false
+    webhook_url: "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+  
+  # 디스코드 알림
+  discord:
+    enabled: false
+    webhook_url: "https://discord.com/api/webhooks/YOUR/WEBHOOK"
+
+# 성능 최적화
+performance:
+  max_workers: 4  # 병렬 처리 워커 수
+  cache_enabled: true
+  cache_ttl: 3600  # 1시간 (초)
+  
+  # 메모리 제한
+  max_memory_mb: 2048
+  
+  # 임시 파일 정리
+  cleanup:
+    enabled: true
+    keep_days: 7
