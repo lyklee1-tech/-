@@ -993,6 +993,131 @@ def generate_script():
         }), 500
 
 
+@app.route('/api/save-youtube-key', methods=['POST'])
+def save_youtube_key():
+    """YouTube API 키 저장"""
+    try:
+        data = request.json
+        
+        if not data or 'api_key' not in data:
+            return jsonify({
+                'success': False,
+                'error': 'API 키가 필요합니다'
+            }), 400
+        
+        api_key = data['api_key'].strip()
+        
+        if not api_key:
+            return jsonify({
+                'success': False,
+                'error': 'API 키를 입력해주세요'
+            }), 400
+        
+        # .env 파일 업데이트
+        env_path = Path('.env')
+        if env_path.exists():
+            with open(env_path, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+            
+            # YOUTUBE_API_KEY 라인 찾아서 업데이트
+            updated = False
+            for i, line in enumerate(lines):
+                if line.startswith('YOUTUBE_API_KEY='):
+                    lines[i] = f'YOUTUBE_API_KEY={api_key}\n'
+                    updated = True
+                    break
+            
+            if not updated:
+                # 없으면 추가
+                lines.append(f'\nYOUTUBE_API_KEY={api_key}\n')
+            
+            with open(env_path, 'w', encoding='utf-8') as f:
+                f.writelines(lines)
+            
+            # 환경 변수 업데이트
+            os.environ['YOUTUBE_API_KEY'] = api_key
+            
+            logger.info(f"✅ YouTube API 키 저장 완료: {api_key[:20]}...")
+            
+            return jsonify({
+                'success': True,
+                'message': 'API 키가 저장되었습니다'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': '.env 파일을 찾을 수 없습니다'
+            }), 500
+            
+    except Exception as e:
+        logger.error(f"❌ API 키 저장 오류: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/test-youtube-key', methods=['POST'])
+def test_youtube_key():
+    """YouTube API 키 테스트"""
+    try:
+        data = request.json
+        
+        if not data or 'api_key' not in data:
+            return jsonify({
+                'success': False,
+                'error': 'API 키가 필요합니다'
+            }), 400
+        
+        api_key = data['api_key'].strip()
+        
+        if not api_key:
+            return jsonify({
+                'success': False,
+                'error': 'API 키를 입력해주세요'
+            }), 400
+        
+        # YouTube API 테스트
+        try:
+            youtube = build('youtube', 'v3', developerKey=api_key)
+            
+            # 간단한 검색 테스트
+            test_response = youtube.search().list(
+                q='test',
+                type='video',
+                part='snippet',
+                maxResults=1
+            ).execute()
+            
+            if test_response.get('items'):
+                logger.info(f"✅ YouTube API 키 테스트 성공: {api_key[:20]}...")
+                return jsonify({
+                    'success': True,
+                    'message': 'API 키가 유효합니다',
+                    'test_result': f"{len(test_response['items'])}개 결과"
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'error': '검색 결과가 없습니다'
+                }), 400
+                
+        except HttpError as e:
+            error_details = e.error_details if hasattr(e, 'error_details') else str(e)
+            logger.error(f"❌ YouTube API 오류: {error_details}")
+            return jsonify({
+                'success': False,
+                'error': f'API 오류: {error_details}'
+            }), 400
+            
+    except Exception as e:
+        logger.error(f"❌ API 키 테스트 오류: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 @app.route('/api/learn-style', methods=['POST'])
 def learn_channel_style():
     """YouTube 채널 스타일 학습"""
@@ -1132,12 +1257,13 @@ def learn_channel_style():
                         'channel_url': channel_url,
                         'channel_id': channel_id,
                         'videos_analyzed': len(titles),
-                        'characteristics': characteristics,
+                        'features': characteristics,  # 'characteristics' -> 'features'
                         'tone': 'professional_casual',
                         'structure': 'hook_data_conclusion',
                         'avg_sentence_length': 15,
+                        'avg_title_length': avg_title_length,  # 평균 제목 길이 추가
                         'key_phrases': key_phrases,
-                        'sample_titles': titles[:3]
+                        'sample_titles': titles[:10]  # 더 많은 샘플 제목 제공
                     }
                     
                     logger.info(f"✅ 스타일 분석 완료: {actual_channel_name}")
@@ -1162,7 +1288,7 @@ def learn_channel_style():
             'channel_name': channel_name,
             'channel_url': channel_url,
             'videos_analyzed': 5,
-            'characteristics': [
+            'features': [  # 'characteristics' -> 'features'
                 '🎯 핵심을 먼저 전달하는 직설적인 스타일',
                 '💰 구체적인 숫자와 데이터 활용',
                 '⚡ 빠른 템포와 간결한 문장',
@@ -1172,7 +1298,13 @@ def learn_channel_style():
             'tone': 'professional_casual',
             'structure': 'hook_data_conclusion',
             'avg_sentence_length': 15,
-            'key_phrases': ['여러분', '핵심은', '주목해야 할 점은', '결론부터 말씀드리면']
+            'avg_title_length': 25,
+            'key_phrases': ['여러분', '핵심은', '주목해야 할 점은', '결론부터 말씀드리면'],
+            'sample_titles': [
+                '비트코인 급등! 지금이 매수 타이밍일까?',
+                '전문가들이 주목하는 2026년 유망주 TOP 5',
+                '경제 위기 속에서도 수익 내는 투자 전략'
+            ]
         }
         
         return jsonify({

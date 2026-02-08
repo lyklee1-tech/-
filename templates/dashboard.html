@@ -588,8 +588,48 @@
             <p>버튼 클릭 한 번으로 전문가급 비디오 자동 제작!</p>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
                 <span class="badge">✨ 완전 무료 • 💰 비용 $0 • ⚡ 초고속</span>
-                <span id="currentDateTime" style="font-size: 0.9em; color: #666; font-weight: bold;">📅 로딩 중...</span>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <button type="button" onclick="toggleSettings()" style="padding: 8px 16px; background: #6c5ce7; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s;">
+                        ⚙️ 설정
+                    </button>
+                    <span id="currentDateTime" style="font-size: 0.9em; color: #666; font-weight: bold;">📅 로딩 중...</span>
+                </div>
             </div>
+        </div>
+        
+        <!-- 설정 패널 (숨김 상태) -->
+        <div id="settingsPanel" style="display: none; margin: 20px 0; padding: 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); color: white;">
+            <h3 style="margin-top: 0; color: white;">⚙️ YouTube API 설정</h3>
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+                <p style="margin: 0 0 15px 0; font-size: 0.95em;">
+                    📺 YouTube 채널 스타일을 실시간으로 분석하려면 YouTube Data API v3 키가 필요합니다.
+                </p>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="youtubeApiKeyInput" placeholder="AIzaSyDxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" style="flex: 1; padding: 12px; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; font-size: 1em; background: rgba(255,255,255,0.9); color: #333;">
+                    <button type="button" onclick="saveYoutubeApiKey()" style="padding: 12px 24px; background: #00b894; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; white-space: nowrap; transition: all 0.3s;">
+                        💾 저장
+                    </button>
+                    <button type="button" onclick="testYoutubeApiKey()" style="padding: 12px 24px; background: #0984e3; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; white-space: nowrap; transition: all 0.3s;">
+                        🧪 테스트
+                    </button>
+                </div>
+                <div id="apiKeyStatus" style="margin-top: 10px; font-size: 0.9em;"></div>
+            </div>
+            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; font-size: 0.9em;">
+                <p style="margin: 0 0 10px 0; font-weight: bold;">📋 API 키 발급 방법:</p>
+                <ol style="margin: 0; padding-left: 20px;">
+                    <li>Google Cloud Console 접속: <a href="https://console.cloud.google.com/" target="_blank" style="color: #74b9ff; text-decoration: underline;">console.cloud.google.com</a></li>
+                    <li>"API 및 서비스" → "라이브러리" → "YouTube Data API v3" 활성화</li>
+                    <li>"사용자 인증 정보" → "API 키 만들기"</li>
+                    <li>생성된 API 키를 위 입력란에 붙여넣고 저장</li>
+                </ol>
+                <p style="margin: 10px 0 0 0; font-style: italic;">
+                    💡 API 키 없이도 샘플 데이터로 모든 기능을 사용할 수 있습니다!
+                </p>
+            </div>
+            <button type="button" onclick="toggleSettings()" style="width: 100%; margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                닫기
+            </button>
         </div>
 
         <!-- 알림 영역 -->
@@ -1167,6 +1207,99 @@
             setTimeout(() => {
                 alertBox.innerHTML = '';
             }, 5000);
+        }
+
+        // ⚙️ 설정 패널 토글
+        function toggleSettings() {
+            const settingsPanel = document.getElementById('settingsPanel');
+            if (settingsPanel.style.display === 'none') {
+                settingsPanel.style.display = 'block';
+                // 저장된 API 키 로드
+                const savedKey = localStorage.getItem('youtube_api_key');
+                if (savedKey) {
+                    document.getElementById('youtubeApiKeyInput').value = savedKey;
+                }
+            } else {
+                settingsPanel.style.display = 'none';
+            }
+        }
+
+        // 💾 YouTube API 키 저장
+        async function saveYoutubeApiKey() {
+            const apiKey = document.getElementById('youtubeApiKeyInput').value.trim();
+            const statusDiv = document.getElementById('apiKeyStatus');
+            
+            if (!apiKey) {
+                statusDiv.innerHTML = '❌ API 키를 입력해주세요.';
+                statusDiv.style.color = '#ff6b6b';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/save-youtube-key', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ api_key: apiKey })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    localStorage.setItem('youtube_api_key', apiKey);
+                    statusDiv.innerHTML = '✅ API 키가 저장되었습니다!';
+                    statusDiv.style.color = '#00b894';
+                    showAlert('success', '✅ YouTube API 키가 저장되었습니다!');
+                } else {
+                    statusDiv.innerHTML = `❌ ${result.error}`;
+                    statusDiv.style.color = '#ff6b6b';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '❌ 저장 중 오류가 발생했습니다.';
+                statusDiv.style.color = '#ff6b6b';
+                console.error('API 키 저장 오류:', error);
+            }
+        }
+
+        // 🧪 YouTube API 키 테스트
+        async function testYoutubeApiKey() {
+            const apiKey = document.getElementById('youtubeApiKeyInput').value.trim();
+            const statusDiv = document.getElementById('apiKeyStatus');
+            
+            if (!apiKey) {
+                statusDiv.innerHTML = '❌ API 키를 입력해주세요.';
+                statusDiv.style.color = '#ff6b6b';
+                return;
+            }
+            
+            statusDiv.innerHTML = '🔍 API 키 테스트 중...';
+            statusDiv.style.color = '#0984e3';
+            
+            try {
+                const response = await fetch('/api/test-youtube-key', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ api_key: apiKey })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    statusDiv.innerHTML = `✅ API 키가 유효합니다! (테스트 검색: ${result.test_result})`;
+                    statusDiv.style.color = '#00b894';
+                    showAlert('success', '✅ YouTube API 키가 정상적으로 작동합니다!');
+                } else {
+                    statusDiv.innerHTML = `❌ ${result.error}`;
+                    statusDiv.style.color = '#ff6b6b';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '❌ 테스트 중 오류가 발생했습니다.';
+                statusDiv.style.color = '#ff6b6b';
+                console.error('API 키 테스트 오류:', error);
+            }
         }
 
         // 🔥 트렌드 로딩 함수
