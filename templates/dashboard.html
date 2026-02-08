@@ -638,66 +638,6 @@
                 </div>
             </div>
 
-            <!-- 📝 대본 관리 섹션 -->
-            <div class="section">
-                <div class="section-title">
-                    <span>📝</span>
-                    <span>대본 관리</span>
-                </div>
-                
-                <div style="background: #fff9e6; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
-                    <p style="margin: 0; font-size: 0.9em; color: #856404;">
-                        💡 <strong>팁:</strong> 먼저 <strong>2단계에서 영상 길이를 선택</strong>하면 대본이 자동으로 그 길이에 맞춰 생성됩니다!
-                    </p>
-                </div>
-                
-                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <button type="button" onclick="generateScript()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
-                        🤖 AI 대본 자동 생성
-                    </button>
-                    <button type="button" onclick="showScriptUpload()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
-                        📤 대본 파일 업로드
-                    </button>
-                </div>
-
-                <!-- 대본 업로드 영역 -->
-                <div id="scriptUploadArea" style="display: none; margin-bottom: 15px;">
-                    <input type="file" id="scriptFileInput" accept=".txt" style="margin-bottom: 10px;">
-                    <button type="button" onclick="uploadScriptFile()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                        업로드
-                    </button>
-                    <button type="button" onclick="cancelScriptUpload()" style="padding: 10px 20px; background: #999; color: white; border: none; border-radius: 6px; cursor: pointer; margin-left: 10px;">
-                        취소
-                    </button>
-                </div>
-
-                <!-- 대본 에디터 -->
-                <div id="scriptEditor" style="display: none; margin-bottom: 15px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <label style="font-weight: bold;">✍️ 대본 내용</label>
-                        <div>
-                            <button type="button" onclick="saveScript()" style="padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; margin-right: 5px;">
-                                💾 저장
-                            </button>
-                            <button type="button" onclick="closeScriptEditor()" style="padding: 8px 15px; background: #999; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                                닫기
-                            </button>
-                        </div>
-                    </div>
-                    <textarea id="scriptContent" rows="10" style="width: 100%; padding: 15px; border-radius: 8px; border: 2px solid #ddd; font-size: 14px; line-height: 1.6; resize: vertical;" placeholder="대본을 입력하세요..."></textarea>
-                    <div style="margin-top: 10px; color: #666; font-size: 0.9em;">
-                        💡 팁: 문장 끝에 줄바꿈을 넣으면 자막 구분이 더 명확합니다.
-                    </div>
-                </div>
-
-                <!-- 저장된 대본 목록 -->
-                <div id="scriptList" style="max-height: 300px; overflow-y: auto;">
-                    <p style="text-align: center; color: #999; padding: 20px;">
-                        저장된 대본이 없습니다
-                    </p>
-                </div>
-            </div>
-
             <div class="section">
                 <!-- 👤 캐릭터 설정 -->
                 <div class="character-section">
@@ -763,10 +703,70 @@
                 <input type="hidden" id="selectedDuration" name="duration" value="20">
             </div>
 
-            <!-- 3단계: 화면 비율 -->
+            <!-- 3단계: 대본 관리 -->
             <div class="section">
                 <div class="section-title">
                     <span>3️⃣</span>
+                    <span>대본 관리</span>
+                </div>
+                
+                <div style="background: #fff9e6; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+                    <p style="margin: 0; font-size: 0.9em; color: #856404;">
+                        💡 <strong>팁:</strong> 위에서 선택한 <strong>영상 길이에 맞춰</strong> 대본이 자동으로 생성됩니다!
+                    </p>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button type="button" onclick="generateScript()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                        🤖 AI 대본 자동 생성
+                    </button>
+                    <button type="button" onclick="showScriptUpload()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                        📤 대본 파일 업로드
+                    </button>
+                </div>
+
+                <!-- 대본 업로드 영역 -->
+                <div id="scriptUploadArea" style="display: none; margin-bottom: 15px;">
+                    <input type="file" id="scriptFileInput" accept=".txt" style="margin-bottom: 10px;">
+                    <button type="button" onclick="uploadScriptFile()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        업로드
+                    </button>
+                    <button type="button" onclick="cancelScriptUpload()" style="padding: 10px 20px; background: #999; color: white; border: none; border-radius: 6px; cursor: pointer; margin-left: 10px;">
+                        취소
+                    </button>
+                </div>
+
+                <!-- 대본 에디터 -->
+                <div id="scriptEditor" style="display: none; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <label style="font-weight: bold;">✍️ 대본 내용</label>
+                        <div>
+                            <button type="button" onclick="saveScript()" style="padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; margin-right: 5px;">
+                                💾 저장
+                            </button>
+                            <button type="button" onclick="closeScriptEditor()" style="padding: 8px 15px; background: #999; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                닫기
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="scriptContent" rows="10" style="width: 100%; padding: 15px; border-radius: 8px; border: 2px solid #ddd; font-size: 14px; line-height: 1.6; resize: vertical;" placeholder="대본을 입력하세요..."></textarea>
+                    <div style="margin-top: 10px; color: #666; font-size: 0.9em;">
+                        💡 팁: 문장 끝에 줄바꿈을 넣으면 자막 구분이 더 명확합니다.
+                    </div>
+                </div>
+
+                <!-- 저장된 대본 목록 -->
+                <div id="scriptList" style="max-height: 300px; overflow-y: auto;">
+                    <p style="text-align: center; color: #999; padding: 20px;">
+                        저장된 대본이 없습니다
+                    </p>
+                </div>
+            </div>
+
+            <!-- 4단계: 화면 비율 -->
+            <div class="section">
+                <div class="section-title">
+                    <span>4️⃣</span>
                     <span>화면 비율</span>
                 </div>
                 <div class="aspect-ratio-grid" id="aspectRatioGrid">
@@ -794,10 +794,10 @@
                 <input type="hidden" id="selectedAspectRatio" name="aspect_ratio" value="1:1">
             </div>
 
-            <!-- 4단계: 목소리 선택 -->
+            <!-- 5단계: 목소리 선택 -->
             <div class="section">
                 <div class="section-title">
-                    <span>4️⃣</span>
+                    <span>5️⃣</span>
                     <span>더빙 목소리</span>
                 </div>
                 <div class="voice-grid" id="voiceGrid">
@@ -821,10 +821,10 @@
                 </div>
             </div>
 
-            <!-- 5단계: 스타일 선택 -->
+            <!-- 6단계: 스타일 선택 -->
             <div class="section">
                 <div class="section-title">
-                    <span>5️⃣</span>
+                    <span>6️⃣</span>
                     <span>비디오 스타일</span>
                 </div>
                 <div class="template-grid" id="styleGrid">
@@ -839,7 +839,7 @@
                 <input type="hidden" id="selectedStyle" name="style" value="professional">
             </div>
 
-            <!-- 6단계: 생성 버튼 -->
+            <!-- 7단계: 생성 버튼 -->
             <button type="submit" class="generate-btn" id="generateBtn">
                 🚀 비디오 생성하기 (완전 무료!)
             </button>
