@@ -586,7 +586,10 @@
         <div class="header">
             <h1>🎨 GenSpark AI 비디오 생성기</h1>
             <p>버튼 클릭 한 번으로 전문가급 비디오 자동 제작!</p>
-            <span class="badge">✨ 완전 무료 • 💰 비용 $0 • ⚡ 초고속</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                <span class="badge">✨ 완전 무료 • 💰 비용 $0 • ⚡ 초고속</span>
+                <span id="currentDateTime" style="font-size: 0.9em; color: #666; font-weight: bold;">📅 로딩 중...</span>
+            </div>
         </div>
 
         <!-- 알림 영역 -->
@@ -603,7 +606,10 @@
                 <!-- 🔥 실시간 트렌드 추천 -->
                 <div class="form-group" style="margin-bottom: 20px; padding: 20px; background: linear-gradient(135deg, #fff5f5 0%, #fff9f9 100%); border-radius: 12px; border: 2px dashed #ff6b6b;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <label style="margin-bottom: 0; font-size: 1.1em; color: #ff6b6b;">🔥 실시간 급상승 주제 (최근 7시간)</label>
+                        <div>
+                            <label style="margin-bottom: 0; font-size: 1.1em; color: #ff6b6b;">🔥 실시간 급상승 주제</label>
+                            <p id="trendUpdateTime" style="margin: 5px 0 0 0; font-size: 0.85em; color: #999;">업데이트 시간: 로딩 중...</p>
+                        </div>
                         <button type="button" onclick="loadTrends()" style="padding: 8px 15px; background: #ff6b6b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em; font-weight: bold; transition: all 0.3s;" onmouseover="this.style.background='#ff5252'" onmouseout="this.style.background='#ff6b6b'">
                             🔄 새로고침
                         </button>
@@ -1130,6 +1136,11 @@
             const trendsList = document.getElementById('trendsList');
             trendsList.innerHTML = '<div style="text-align: center; padding: 20px; color: #999;"><p>🔍 트렌드 분석 중...</p></div>';
             
+            // 업데이트 시간 표시
+            const now = new Date();
+            const timeString = `${now.getFullYear()}년 ${String(now.getMonth() + 1).padStart(2, '0')}월 ${String(now.getDate()).padStart(2, '0')}일 ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            document.getElementById('trendUpdateTime').textContent = `업데이트: ${timeString} (최근 7시간 분석)`;
+            
             try {
                 const response = await fetch('/api/trends?hours=7');
                 const result = await response.json();
@@ -1472,8 +1483,29 @@
             }
         }
         
+        // ============================================================
+        // 실시간 날짜/시간 업데이트
+        // ============================================================
+        
+        function updateDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            const dateTimeString = `📅 ${year}년 ${month}월 ${day}일 ${hours}:${minutes}:${seconds}`;
+            document.getElementById('currentDateTime').textContent = dateTimeString;
+        }
+        
+        // 매초마다 시간 업데이트
+        setInterval(updateDateTime, 1000);
+        
         // 페이지 로드 시 트렌드 및 대본 로딩
         window.addEventListener('DOMContentLoaded', () => {
+            updateDateTime(); // 즉시 한 번 실행
             loadTrends();
             loadScripts();
         });

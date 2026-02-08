@@ -211,9 +211,12 @@ class TrendAnalyzer:
         """
         모든 소스에서 트렌드 수집 및 분석
         """
+        current_time = datetime.now()
         logger.info("=" * 80)
         logger.info("🔥 실시간 트렌드 분석 시작")
+        logger.info(f"📅 현재 시각: {current_time.strftime('%Y년 %m월 %d일 %H시 %M분')}")
         logger.info(f"⏰ 분석 기간: 최근 {hours}시간")
+        logger.info(f"🕐 기준 시간: {(current_time - timedelta(hours=hours)).strftime('%Y년 %m월 %d일 %H시 %M분')} ~ 현재")
         logger.info("=" * 80)
         
         all_trends = []

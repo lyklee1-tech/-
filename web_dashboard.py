@@ -888,20 +888,28 @@ def generate_script():
         topic = data['topic']
         duration = data.get('duration', 60)  # 기본 60초
         
+        # 현재 날짜 가져오기
+        current_date = datetime.now().strftime('%Y년 %m월 %d일')
+        current_time = datetime.now().strftime('%H시 %M분')
+        
         # TODO: OpenAI API로 대본 생성
-        # 현재는 샘플 대본 반환
+        # 현재는 샘플 대본 반환 (날짜 정보 포함)
         sample_script = f"""# {topic}
 
-안녕하세요! 오늘은 {topic}에 대해 알아보겠습니다.
+[날짜: {current_date} {current_time} 기준]
+
+안녕하세요! 오늘 {current_date}, {topic}에 대해 알아보겠습니다.
 
 [서론]
-최근 {topic}이(가) 많은 관심을 받고 있습니다.
+{current_date} 현재, {topic}이(가) 많은 관심을 받고 있습니다.
+실시간으로 급상승하고 있는 이 주제에 대해 자세히 살펴보겠습니다.
 
 [본론]
 {topic}의 주요 내용을 살펴보면...
+최신 정보를 바탕으로 분석해보면...
 
 [결론]
-이상으로 {topic}에 대해 알아보았습니다.
+이상으로 {current_date} 기준 {topic}에 대해 알아보았습니다.
 """
         
         # 대본 저장
