@@ -247,7 +247,7 @@ class VideoCreator:
                 sentence,
                 fontsize=self.subtitle_config['font_size'],
                 color=self.subtitle_config['font_color'],
-                font='NanumGothic-Bold',  # 한글 폰트
+                font='/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf',  # 한글 폰트
                 method='caption',
                 size=(self.width - 100, None),
                 align='center'
@@ -273,7 +273,7 @@ class VideoCreator:
             title_text,
             fontsize=70,
             color='white',
-            font='NanumGothic-Bold',
+            font='/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf',
             method='caption',
             size=(self.width - 100, None),
             align='center',
@@ -324,7 +324,7 @@ class VideoCreator:
             disclaimer_text,
             fontsize=fontsize,
             color=color,
-            font='NanumGothic-Bold',
+            font='/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf',
             method='caption',
             size=(self.width - 80, None),
             align='center',

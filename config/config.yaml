@@ -262,7 +262,7 @@ logging:
 # 자막 설정
 subtitles:
   enabled: true
-  font: "NanumGothicBold"
+  font: "/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf"
   font_size: 60
   font_color: "white"
   outline_color: "black"
