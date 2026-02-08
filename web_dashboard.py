@@ -892,13 +892,36 @@ def generate_script():
         current_date = datetime.now().strftime('%Y년 %m월 %d일')
         current_time = datetime.now().strftime('%H시 %M분')
         
-        # TODO: OpenAI API로 대본 생성
-        # 현재는 샘플 대본 반환 (날짜 정보 포함)
-        sample_script = f"""# {topic}
+        # 영상 길이에 따른 대본 분량 계산
+        # 일반적으로 1초당 약 2-3 단어 (한국어 기준)
+        words_per_second = 2.5
+        estimated_words = int(duration * words_per_second)
+        
+        # 영상 길이별 대본 생성
+        if duration <= 30:
+            # 짧은 영상 (20-30초): 핵심만 간결하게
+            sample_script = f"""# {topic}
 
 [날짜: {current_date} {current_time} 기준]
+[영상 길이: {duration}초 / 약 {estimated_words}단어]
 
-안녕하세요! 오늘 {current_date}, {topic}에 대해 알아보겠습니다.
+{current_date} 현재, {topic}이(가) 실시간으로 급상승하고 있습니다.
+
+핵심 포인트를 빠르게 살펴보겠습니다.
+
+{topic}의 주요 내용은...
+[여기에 핵심 내용 작성]
+
+이상 {topic}에 대한 속보였습니다!
+"""
+        elif duration <= 60:
+            # 중간 영상 (40-60초): 서론-본론-결론
+            sample_script = f"""# {topic}
+
+[날짜: {current_date} {current_time} 기준]
+[영상 길이: {duration}초 / 약 {estimated_words}단어]
+
+안녕하세요! {current_date}, {topic}에 대해 알아보겠습니다.
 
 [서론]
 {current_date} 현재, {topic}이(가) 많은 관심을 받고 있습니다.
@@ -910,6 +933,36 @@ def generate_script():
 
 [결론]
 이상으로 {current_date} 기준 {topic}에 대해 알아보았습니다.
+"""
+        else:
+            # 긴 영상 (60초 이상): 상세한 구성
+            sample_script = f"""# {topic}
+
+[날짜: {current_date} {current_time} 기준]
+[영상 길이: {duration}초 / 약 {estimated_words}단어]
+
+안녕하세요! {current_date}, {topic}에 대해 심층 분석해보겠습니다.
+
+[인트로]
+오늘은 최근 뜨거운 이슈인 {topic}에 대해 자세히 다뤄보겠습니다.
+
+[배경]
+{current_date} 현재, {topic}이(가) 왜 주목받고 있을까요?
+최근 동향과 배경을 먼저 살펴보겠습니다.
+
+[핵심 내용]
+{topic}의 주요 내용을 자세히 분석해보면...
+전문가들은 이렇게 말합니다...
+
+[영향 분석]
+이것이 우리에게 미치는 영향은...
+앞으로의 전망은...
+
+[결론 & 요약]
+지금까지 {current_date} 기준 {topic}에 대해 알아보았습니다.
+핵심 포인트를 다시 한번 정리하면...
+
+감사합니다!
 """
         
         # 대본 저장

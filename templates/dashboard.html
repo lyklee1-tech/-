@@ -645,6 +645,12 @@
                     <span>대본 관리</span>
                 </div>
                 
+                <div style="background: #fff9e6; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+                    <p style="margin: 0; font-size: 0.9em; color: #856404;">
+                        💡 <strong>팁:</strong> 먼저 <strong>2단계에서 영상 길이를 선택</strong>하면 대본이 자동으로 그 길이에 맞춰 생성됩니다!
+                    </p>
+                </div>
+                
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                     <button type="button" onclick="generateScript()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
                         🤖 AI 대본 자동 생성
@@ -737,10 +743,30 @@
                 </div>
             </div>
 
-            <!-- 2단계: 화면 비율 -->
+            <!-- 2단계: 영상 길이 -->
             <div class="section">
                 <div class="section-title">
                     <span>2️⃣</span>
+                    <span>영상 길이 선택</span>
+                </div>
+                <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">
+                    ⚡ 먼저 영상 길이를 선택하면 대본이 자동으로 맞춰집니다!
+                </p>
+                <div class="duration-grid" id="durationGrid">
+                    {% for key, preset in durations.items() %}
+                    <div class="duration-btn" data-duration="{{ preset.value }}" onclick="selectDuration({{ preset.value }})">
+                        <span class="duration-icon">{{ preset.icon }}</span>
+                        <div class="duration-name">{{ preset.name }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" id="selectedDuration" name="duration" value="20">
+            </div>
+
+            <!-- 3단계: 화면 비율 -->
+            <div class="section">
+                <div class="section-title">
+                    <span>3️⃣</span>
                     <span>화면 비율</span>
                 </div>
                 <div class="aspect-ratio-grid" id="aspectRatioGrid">
@@ -768,10 +794,10 @@
                 <input type="hidden" id="selectedAspectRatio" name="aspect_ratio" value="1:1">
             </div>
 
-            <!-- 3단계: 목소리 선택 -->
+            <!-- 4단계: 목소리 선택 -->
             <div class="section">
                 <div class="section-title">
-                    <span>3️⃣</span>
+                    <span>4️⃣</span>
                     <span>더빙 목소리</span>
                 </div>
                 <div class="voice-grid" id="voiceGrid">
@@ -795,10 +821,10 @@
                 </div>
             </div>
 
-            <!-- 4단계: 스타일 선택 -->
+            <!-- 5단계: 스타일 선택 -->
             <div class="section">
                 <div class="section-title">
-                    <span>4️⃣</span>
+                    <span>5️⃣</span>
                     <span>비디오 스타일</span>
                 </div>
                 <div class="template-grid" id="styleGrid">
@@ -811,23 +837,6 @@
                     {% endfor %}
                 </div>
                 <input type="hidden" id="selectedStyle" name="style" value="professional">
-            </div>
-
-            <!-- 5단계: 영상 길이 -->
-            <div class="section">
-                <div class="section-title">
-                    <span>5️⃣</span>
-                    <span>영상 길이</span>
-                </div>
-                <div class="duration-grid" id="durationGrid">
-                    {% for key, preset in durations.items() %}
-                    <div class="duration-btn" data-duration="{{ preset.value }}" onclick="selectDuration({{ preset.value }})">
-                        <span class="duration-icon">{{ preset.icon }}</span>
-                        <div class="duration-name">{{ preset.name }}</div>
-                    </div>
-                    {% endfor %}
-                </div>
-                <input type="hidden" id="selectedDuration" name="duration" value="20">
             </div>
 
             <!-- 6단계: 생성 버튼 -->
@@ -1262,13 +1271,21 @@
         // AI 대본 자동 생성
         async function generateScript() {
             const topic = document.getElementById('topic').value;
+            const duration = parseInt(document.getElementById('selectedDuration').value);
             
             if (!topic) {
                 showAlert('error', '주제를 먼저 입력해주세요!');
                 return;
             }
             
-            showAlert('info', '🤖 AI가 대본을 생성 중입니다...');
+            if (!duration || duration <= 0) {
+                showAlert('warning', '⚠️ 영상 길이를 먼저 선택해주세요!');
+                // 영상 길이 섹션으로 스크롤
+                document.querySelector('[data-duration]')?.parentElement?.scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            
+            showAlert('info', `🤖 AI가 ${duration}초 분량 대본을 생성 중입니다...`);
             
             try {
                 const response = await fetch('/api/scripts/generate', {
@@ -1276,16 +1293,20 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         topic: topic,
-                        duration: parseInt(document.getElementById('selectedDuration').value)
+                        duration: duration
                     })
                 });
                 
                 const data = await response.json();
                 
                 if (data.success) {
-                    showAlert('success', '✅ 대본이 생성되었습니다!');
+                    showAlert('success', `✅ ${duration}초 분량 대본이 생성되었습니다!`);
                     document.getElementById('scriptContent').value = data.content;
                     document.getElementById('scriptEditor').style.display = 'block';
+                    
+                    // 대본 에디터로 스크롤
+                    document.getElementById('scriptEditor').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    
                     await loadScripts();
                 } else {
                     showAlert('error', '❌ ' + data.error);
