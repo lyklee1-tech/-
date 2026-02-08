@@ -42,10 +42,14 @@ DATA_DIR = BASE_DIR / 'data'
 AUDIO_DIR = DATA_DIR / 'audio'
 SCENES_DIR = DATA_DIR / 'scenes'
 VIDEOS_DIR = DATA_DIR / 'videos'
+SCRIPTS_DIR = DATA_DIR / 'scripts'
 
 # 디렉토리 생성
-for dir_path in [DATA_DIR, AUDIO_DIR, SCENES_DIR, VIDEOS_DIR]:
+for dir_path in [DATA_DIR, AUDIO_DIR, SCENES_DIR, VIDEOS_DIR, SCRIPTS_DIR]:
     dir_path.mkdir(parents=True, exist_ok=True)
+
+# 대본 파일 확장자
+SCRIPT_ALLOWED_EXTENSIONS = {'txt', 'md', 'docx'}
 
 
 def allowed_file(filename):
@@ -705,6 +709,283 @@ def serve_character_image(filename):
         
     except Exception as e:
         logger.error(f"❌ 이미지 제공 오류: {e}")
+        return jsonify({
+            'error': str(e)
+        }), 500
+
+
+# ============================================================
+# 대본 관리 API
+# ============================================================
+
+@app.route('/api/scripts', methods=['GET'])
+def get_scripts():
+    """저장된 대본 목록 가져오기"""
+    try:
+        scripts = []
+        
+        if SCRIPTS_DIR.exists():
+            for file_path in sorted(SCRIPTS_DIR.glob('*.txt'), key=lambda x: x.stat().st_mtime, reverse=True):
+                scripts.append({
+                    'filename': file_path.name,
+                    'title': file_path.stem,
+                    'size': file_path.stat().st_size,
+                    'created': datetime.fromtimestamp(file_path.stat().st_mtime).isoformat(),
+                    'url': f'/api/scripts/{file_path.name}'
+                })
+        
+        return jsonify({
+            'success': True,
+            'scripts': scripts,
+            'total': len(scripts)
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ 대본 목록 조회 오류: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/scripts/<filename>', methods=['GET'])
+def get_script(filename):
+    """특정 대본 내용 가져오기"""
+    try:
+        file_path = SCRIPTS_DIR / secure_filename(filename)
+        
+        if not file_path.exists():
+            return jsonify({
+                'error': '대본을 찾을 수 없습니다'
+            }), 404
+        
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        return jsonify({
+            'success': True,
+            'filename': filename,
+            'content': content,
+            'size': file_path.stat().st_size
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ 대본 조회 오류: {e}")
+        return jsonify({
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/scripts', methods=['POST'])
+def save_script():
+    """대본 저장 (텍스트 또는 파일 업로드)"""
+    try:
+        # 파일 업로드인 경우
+        if 'file' in request.files:
+            file = request.files['file']
+            
+            if file.filename == '':
+                return jsonify({
+                    'success': False,
+                    'error': '파일이 선택되지 않았습니다'
+                }), 400
+            
+            if not file.filename.endswith('.txt'):
+                return jsonify({
+                    'success': False,
+                    'error': 'txt 파일만 업로드 가능합니다'
+                }), 400
+            
+            filename = secure_filename(file.filename)
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            unique_filename = f"{timestamp}_{filename}"
+            file_path = SCRIPTS_DIR / unique_filename
+            
+            file.save(str(file_path))
+            
+            logger.info(f"✅ 대본 파일 업로드 완료: {unique_filename}")
+            
+            return jsonify({
+                'success': True,
+                'filename': unique_filename,
+                'message': '대본이 업로드되었습니다'
+            })
+        
+        # 텍스트 저장인 경우
+        else:
+            data = request.json
+            
+            if not data or 'content' not in data:
+                return jsonify({
+                    'success': False,
+                    'error': '대본 내용이 없습니다'
+                }), 400
+            
+            content = data['content']
+            title = data.get('title', 'untitled')
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = f"{timestamp}_{secure_filename(title)}.txt"
+            file_path = SCRIPTS_DIR / filename
+            
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(content)
+            
+            logger.info(f"✅ 대본 저장 완료: {filename}")
+            
+            return jsonify({
+                'success': True,
+                'filename': filename,
+                'message': '대본이 저장되었습니다'
+            })
+        
+    except Exception as e:
+        logger.error(f"❌ 대본 저장 오류: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/scripts/<filename>', methods=['DELETE'])
+def delete_script(filename):
+    """대본 삭제"""
+    try:
+        file_path = SCRIPTS_DIR / secure_filename(filename)
+        
+        if not file_path.exists():
+            return jsonify({
+                'error': '대본을 찾을 수 없습니다'
+            }), 404
+        
+        file_path.unlink()
+        
+        logger.info(f"✅ 대본 삭제 완료: {filename}")
+        
+        return jsonify({
+            'success': True,
+            'message': '대본이 삭제되었습니다'
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ 대본 삭제 오류: {e}")
+        return jsonify({
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/scripts/generate', methods=['POST'])
+def generate_script():
+    """주제로 대본 자동 생성 (GPT-4)"""
+    try:
+        data = request.json
+        
+        if not data or 'topic' not in data:
+            return jsonify({
+                'success': False,
+                'error': '주제가 필요합니다'
+            }), 400
+        
+        topic = data['topic']
+        duration = data.get('duration', 60)  # 기본 60초
+        
+        # TODO: OpenAI API로 대본 생성
+        # 현재는 샘플 대본 반환
+        sample_script = f"""# {topic}
+
+안녕하세요! 오늘은 {topic}에 대해 알아보겠습니다.
+
+[서론]
+최근 {topic}이(가) 많은 관심을 받고 있습니다.
+
+[본론]
+{topic}의 주요 내용을 살펴보면...
+
+[결론]
+이상으로 {topic}에 대해 알아보았습니다.
+"""
+        
+        # 대본 저장
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"{timestamp}_{secure_filename(topic)}.txt"
+        file_path = SCRIPTS_DIR / filename
+        
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(sample_script)
+        
+        logger.info(f"✅ 대본 생성 완료: {filename}")
+        
+        return jsonify({
+            'success': True,
+            'filename': filename,
+            'content': sample_script,
+            'message': '대본이 생성되었습니다'
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ 대본 생성 오류: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/tts/preview', methods=['POST'])
+def preview_tts():
+    """TTS 목소리 미리듣기"""
+    try:
+        data = request.json
+        
+        if not data or 'text' not in data:
+            return jsonify({
+                'success': False,
+                'error': '텍스트가 필요합니다'
+            }), 400
+        
+        text = data['text']
+        voice = data.get('voice', 'ko-KR-Neural2-A')
+        
+        # TTS 생성
+        from gtts import gTTS
+        
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"preview_{timestamp}.mp3"
+        file_path = AUDIO_DIR / filename
+        
+        tts = gTTS(text=text, lang='ko')
+        tts.save(str(file_path))
+        
+        logger.info(f"✅ TTS 미리듣기 생성: {filename}")
+        
+        return jsonify({
+            'success': True,
+            'filename': filename,
+            'url': f'/api/audio/preview/{filename}',
+            'message': 'TTS가 생성되었습니다'
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ TTS 미리듣기 오류: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/audio/preview/<filename>')
+def serve_preview_audio(filename):
+    """미리듣기 오디오 파일 제공"""
+    try:
+        file_path = AUDIO_DIR / filename
+        
+        if not file_path.exists():
+            return jsonify({
+                'error': '오디오 파일을 찾을 수 없습니다'
+            }), 404
+        
+        return send_file(file_path, mimetype='audio/mpeg')
+        
+    except Exception as e:
+        logger.error(f"❌ 오디오 제공 오류: {e}")
         return jsonify({
             'error': str(e)
         }), 500

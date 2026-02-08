@@ -630,7 +630,63 @@
                         required
                     >
                 </div>
+            </div>
 
+            <!-- 📝 대본 관리 섹션 -->
+            <div class="section">
+                <div class="section-title">
+                    <span>📝</span>
+                    <span>대본 관리</span>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button type="button" onclick="generateScript()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                        🤖 AI 대본 자동 생성
+                    </button>
+                    <button type="button" onclick="showScriptUpload()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                        📤 대본 파일 업로드
+                    </button>
+                </div>
+
+                <!-- 대본 업로드 영역 -->
+                <div id="scriptUploadArea" style="display: none; margin-bottom: 15px;">
+                    <input type="file" id="scriptFileInput" accept=".txt" style="margin-bottom: 10px;">
+                    <button type="button" onclick="uploadScriptFile()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        업로드
+                    </button>
+                    <button type="button" onclick="cancelScriptUpload()" style="padding: 10px 20px; background: #999; color: white; border: none; border-radius: 6px; cursor: pointer; margin-left: 10px;">
+                        취소
+                    </button>
+                </div>
+
+                <!-- 대본 에디터 -->
+                <div id="scriptEditor" style="display: none; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <label style="font-weight: bold;">✍️ 대본 내용</label>
+                        <div>
+                            <button type="button" onclick="saveScript()" style="padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; margin-right: 5px;">
+                                💾 저장
+                            </button>
+                            <button type="button" onclick="closeScriptEditor()" style="padding: 8px 15px; background: #999; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                닫기
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="scriptContent" rows="10" style="width: 100%; padding: 15px; border-radius: 8px; border: 2px solid #ddd; font-size: 14px; line-height: 1.6; resize: vertical;" placeholder="대본을 입력하세요..."></textarea>
+                    <div style="margin-top: 10px; color: #666; font-size: 0.9em;">
+                        💡 팁: 문장 끝에 줄바꿈을 넣으면 자막 구분이 더 명확합니다.
+                    </div>
+                </div>
+
+                <!-- 저장된 대본 목록 -->
+                <div id="scriptList" style="max-height: 300px; overflow-y: auto;">
+                    <p style="text-align: center; color: #999; padding: 20px;">
+                        저장된 대본이 없습니다
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
                 <!-- 👤 캐릭터 설정 -->
                 <div class="character-section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -718,10 +774,19 @@
                         <div class="voice-icon">{{ voice.icon }}</div>
                         <div class="voice-name">{{ voice.name }}</div>
                         <div class="voice-desc">{{ voice.description }}</div>
+                        <button type="button" onclick="event.stopPropagation(); previewVoice('{{ key }}', '{{ voice.name }}')" style="margin-top: 10px; padding: 8px 12px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em; width: 100%;">
+                            🔊 미리듣기
+                        </button>
                     </div>
                     {% endfor %}
                 </div>
                 <input type="hidden" id="selectedVoice" name="voice" value="male_young">
+                
+                <!-- TTS 미리듣기 플레이어 -->
+                <div id="voicePreviewPlayer" style="display: none; margin-top: 15px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+                    <p style="margin: 0 0 10px 0; font-weight: bold;">🔊 미리듣기 중...</p>
+                    <audio id="voicePreviewAudio" controls style="width: 100%;"></audio>
+                </div>
             </div>
 
             <!-- 4단계: 스타일 선택 -->
@@ -1131,9 +1196,286 @@
             }
         }
         
-        // 페이지 로드 시 트렌드 자동 로딩
+        // ============================================================
+        // 대본 관리 함수들
+        // ============================================================
+        
+        let currentScripts = [];
+        
+        // 대본 목록 로드
+        async function loadScripts() {
+            try {
+                const response = await fetch('/api/scripts');
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentScripts = data.scripts;
+                    renderScriptList();
+                }
+            } catch (error) {
+                console.error('대본 로드 오류:', error);
+            }
+        }
+        
+        // 대본 목록 렌더링
+        function renderScriptList() {
+            const listEl = document.getElementById('scriptList');
+            
+            if (currentScripts.length === 0) {
+                listEl.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">저장된 대본이 없습니다</p>';
+                return;
+            }
+            
+            listEl.innerHTML = currentScripts.map(script => `
+                <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 2px solid #eee;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 5px 0; color: #333;">📄 ${script.title}</h4>
+                            <p style="margin: 0; font-size: 0.9em; color: #666;">
+                                ${(script.size / 1024).toFixed(1)} KB · ${new Date(script.created).toLocaleString('ko-KR')}
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 5px;">
+                            <button onclick="viewScript('${script.filename}')" style="padding: 8px 12px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                👁️ 보기
+                            </button>
+                            <button onclick="deleteScript('${script.filename}')" style="padding: 8px 12px; background: #e74c3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                🗑️ 삭제
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // AI 대본 자동 생성
+        async function generateScript() {
+            const topic = document.getElementById('topic').value;
+            
+            if (!topic) {
+                showAlert('error', '주제를 먼저 입력해주세요!');
+                return;
+            }
+            
+            showAlert('info', '🤖 AI가 대본을 생성 중입니다...');
+            
+            try {
+                const response = await fetch('/api/scripts/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        topic: topic,
+                        duration: parseInt(document.getElementById('selectedDuration').value)
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('success', '✅ 대본이 생성되었습니다!');
+                    document.getElementById('scriptContent').value = data.content;
+                    document.getElementById('scriptEditor').style.display = 'block';
+                    await loadScripts();
+                } else {
+                    showAlert('error', '❌ ' + data.error);
+                }
+            } catch (error) {
+                showAlert('error', '❌ 네트워크 오류');
+                console.error('대본 생성 오류:', error);
+            }
+        }
+        
+        // 대본 업로드 영역 표시
+        function showScriptUpload() {
+            document.getElementById('scriptUploadArea').style.display = 'block';
+        }
+        
+        // 대본 업로드 취소
+        function cancelScriptUpload() {
+            document.getElementById('scriptUploadArea').style.display = 'none';
+            document.getElementById('scriptFileInput').value = '';
+        }
+        
+        // 대본 파일 업로드
+        async function uploadScriptFile() {
+            const fileInput = document.getElementById('scriptFileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showAlert('error', '파일을 선택해주세요!');
+                return;
+            }
+            
+            if (!file.name.endsWith('.txt')) {
+                showAlert('error', 'txt 파일만 업로드 가능합니다!');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('/api/scripts', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('success', '✅ 대본이 업로드되었습니다!');
+                    cancelScriptUpload();
+                    await loadScripts();
+                } else {
+                    showAlert('error', '❌ ' + data.error);
+                }
+            } catch (error) {
+                showAlert('error', '❌ 업로드 오류');
+                console.error('업로드 오류:', error);
+            }
+        }
+        
+        // 대본 보기
+        async function viewScript(filename) {
+            try {
+                const response = await fetch(`/api/scripts/${filename}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('scriptContent').value = data.content;
+                    document.getElementById('scriptEditor').style.display = 'block';
+                    document.getElementById('scriptEditor').dataset.currentFile = filename;
+                } else {
+                    showAlert('error', '❌ ' + data.error);
+                }
+            } catch (error) {
+                showAlert('error', '❌ 로드 오류');
+                console.error('대본 로드 오류:', error);
+            }
+        }
+        
+        // 대본 저장
+        async function saveScript() {
+            const content = document.getElementById('scriptContent').value;
+            const topic = document.getElementById('topic').value || 'untitled';
+            
+            if (!content.trim()) {
+                showAlert('error', '대본 내용을 입력해주세요!');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/scripts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: topic,
+                        content: content
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('success', '✅ 대본이 저장되었습니다!');
+                    await loadScripts();
+                } else {
+                    showAlert('error', '❌ ' + data.error);
+                }
+            } catch (error) {
+                showAlert('error', '❌ 저장 오류');
+                console.error('대본 저장 오류:', error);
+            }
+        }
+        
+        // 대본 에디터 닫기
+        function closeScriptEditor() {
+            document.getElementById('scriptEditor').style.display = 'none';
+            document.getElementById('scriptContent').value = '';
+            delete document.getElementById('scriptEditor').dataset.currentFile;
+        }
+        
+        // 대본 삭제
+        async function deleteScript(filename) {
+            if (!confirm('정말 이 대본을 삭제하시겠습니까?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/scripts/${filename}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('success', '✅ 대본이 삭제되었습니다!');
+                    await loadScripts();
+                } else {
+                    showAlert('error', '❌ ' + data.error);
+                }
+            } catch (error) {
+                showAlert('error', '❌ 삭제 오류');
+                console.error('대본 삭제 오류:', error);
+            }
+        }
+        
+        // ============================================================
+        // 목소리 미리듣기 함수
+        // ============================================================
+        
+        // 목소리 미리듣기
+        async function previewVoice(voiceKey, voiceName) {
+            const scriptContent = document.getElementById('scriptContent').value;
+            let text = '';
+            
+            // 대본이 있으면 첫 문장 사용, 없으면 샘플 텍스트
+            if (scriptContent && scriptContent.trim()) {
+                const firstLine = scriptContent.split('\n').find(line => line.trim().length > 0);
+                text = firstLine ? firstLine.substring(0, 100) : `안녕하세요! ${voiceName} 목소리입니다.`;
+            } else {
+                text = `안녕하세요! ${voiceName} 목소리입니다. 경제 뉴스를 전해드립니다.`;
+            }
+            
+            showAlert('info', '🔊 목소리를 생성 중입니다...');
+            
+            try {
+                const response = await fetch('/api/tts/preview', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: text,
+                        voice: voiceKey
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // 미리듣기 플레이어 표시
+                    const player = document.getElementById('voicePreviewPlayer');
+                    const audio = document.getElementById('voicePreviewAudio');
+                    
+                    audio.src = data.url;
+                    player.style.display = 'block';
+                    
+                    // 자동 재생
+                    audio.play();
+                    
+                    showAlert('success', '✅ 재생 중입니다!');
+                } else {
+                    showAlert('error', '❌ ' + data.error);
+                }
+            } catch (error) {
+                showAlert('error', '❌ 네트워크 오류');
+                console.error('목소리 미리듣기 오류:', error);
+            }
+        }
+        
+        // 페이지 로드 시 트렌드 및 대본 로딩
         window.addEventListener('DOMContentLoaded', () => {
             loadTrends();
+            loadScripts();
         });
 
         function downloadAudio() {
