@@ -869,13 +869,25 @@
                     <span>5️⃣</span>
                     <span>더빙 목소리</span>
                 </div>
+                <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #2196F3;">
+                    <p style="margin: 0; color: #1565C0; font-size: 0.95em;">
+                        🎙️ <strong>목소리 선택 가이드:</strong> 각 목소리는 <strong>완전히 다른 TTS 설정</strong>을 사용합니다.<br>
+                        • 남성 (젊은): 밝고 에너지 넘치는 톤 (pitch: 0, speed: 1.0)<br>
+                        • 남성 (성숙한): 차분하고 신뢰감 있는 톤 (pitch: -2, speed: 0.95)<br>
+                        • 여성 (젊은): 친근하고 활발한 톤 (pitch: +2, speed: 1.05)<br>
+                        • 여성 (전문가): 정확하고 명료한 톤 (pitch: 0, speed: 1.0)<br>
+                        • 뉴스 앵커: 뉴스 진행자 스타일 (pitch: 0, speed: 0.9)<br>
+                        • 유튜버: 생동감 있고 재미있는 톤 (pitch: +1, speed: 1.1)<br>
+                        💡 <em>미리듣기 버튼으로 실제 목소리를 확인하세요!</em>
+                    </p>
+                </div>
                 <div class="voice-grid" id="voiceGrid">
                     {% for key, voice in voices.items() %}
                     <div class="voice-card" data-voice="{{ key }}" onclick="selectVoice('{{ key }}')">
                         <div class="voice-icon">{{ voice.icon }}</div>
                         <div class="voice-name">{{ voice.name }}</div>
                         <div class="voice-desc">{{ voice.description }}</div>
-                        <button type="button" onclick="event.stopPropagation(); previewVoice('{{ key }}', '{{ voice.name }}')" style="margin-top: 10px; padding: 8px 12px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em; width: 100%;">
+                        <button type="button" onclick="event.stopPropagation(); previewVoice('{{ key }}', '{{ voice.name }}')" style="margin-top: 10px; padding: 8px 12px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em; width: 100%; transition: all 0.3s;" onmouseover="this.style.background='#45a049'" onmouseout="this.style.background='#4CAF50'">
                             🔊 미리듣기
                         </button>
                     </div>
@@ -884,8 +896,8 @@
                 <input type="hidden" id="selectedVoice" name="voice" value="male_young">
                 
                 <!-- TTS 미리듣기 플레이어 -->
-                <div id="voicePreviewPlayer" style="display: none; margin-top: 15px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
-                    <p style="margin: 0 0 10px 0; font-weight: bold;">🔊 미리듣기 중...</p>
+                <div id="voicePreviewPlayer" style="display: none; margin-top: 15px; padding: 15px; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 8px; border: 2px solid #4CAF50;">
+                    <p style="margin: 0 0 10px 0; font-weight: bold; color: #2e7d32;">🔊 미리듣기 재생 중...</p>
                     <audio id="voicePreviewAudio" controls style="width: 100%;"></audio>
                 </div>
             </div>
@@ -896,12 +908,27 @@
                     <span>6️⃣</span>
                     <span>비디오 스타일</span>
                 </div>
+                <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea;">
+                    <p style="margin: 0; color: #495057; font-size: 0.95em;">
+                        💡 <strong>스타일 선택 가이드:</strong> 각 스타일은 이미지 생성에 <strong>완전히 다른 프롬프트</strong>를 적용합니다.<br>
+                        • 프로페셔널: 비즈니스/기업 스타일 (깔끔한 스튜디오 조명)<br>
+                        • 일본 애니메이션: 만화/애니메이션 스타일 (밝은 색상, 표현력 있는 캐릭터)<br>
+                        • 시네마틱: 영화 같은 스타일 (드라마틱한 조명, 영화 필름 느낌)<br>
+                        • 3D 렌더링: CGI 그래픽 스타일 (광택 표면, 레이 트레이싱)<br>
+                        • 다큐멘터리: 실사 사진 스타일 (자연스러운 조명, 리얼리즘)
+                    </p>
+                </div>
                 <div class="template-grid" id="styleGrid">
                     {% for key, style in styles.items() %}
                     <div class="template-card" data-style="{{ key }}" onclick="selectStyle('{{ key }}')">
                         <div class="template-icon">{{ style.icon }}</div>
                         <div class="template-name">{{ style.name }}</div>
                         <div class="template-desc">{{ style.description }}</div>
+                        {% if style.keywords %}
+                        <div style="font-size: 0.75em; color: #999; margin-top: 5px;">
+                            🔑 {{ ', '.join(style.keywords[:3]) }}
+                        </div>
+                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>

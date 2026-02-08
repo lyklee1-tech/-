@@ -67,49 +67,65 @@ STYLE_TEMPLATES = {
         'name': '전문적 (Professional)',
         'description': '비즈니스, 기업, 뉴스',
         'keywords': ['business', 'professional', 'corporate', 'clean', 'modern'],
-        'icon': '💼'
+        'icon': '💼',
+        'prompt_template': 'professional business style, clean modern aesthetic, corporate environment, high quality, sharp focus, well-lit studio lighting, business attire, {topic}',
+        'negative_prompt': 'blurry, low quality, cartoon, anime, casual, unprofessional, messy'
     },
     'stickman': {
         'name': '스틱맨 애니메이션',
         'description': '간단한 애니메이션 캐릭터',
         'keywords': ['stickman', 'simple', 'animation', 'whiteboard'],
-        'icon': '🙂'
+        'icon': '🙂',
+        'prompt_template': 'simple stick figure animation, whiteboard drawing style, minimalist black lines on white background, hand-drawn educational illustration, {topic}',
+        'negative_prompt': 'complex, detailed, realistic, photographic, colorful'
     },
     'japanese_anime': {
         'name': '일본 애니메이션',
         'description': '애니메이션 스타일',
         'keywords': ['anime', 'japanese', 'animation', 'manga'],
-        'icon': '👧'
+        'icon': '👧',
+        'prompt_template': 'Japanese anime style, manga aesthetic, vibrant anime colors, expressive anime characters, cel-shaded animation, dynamic pose, studio anime quality, {topic}',
+        'negative_prompt': 'realistic, photograph, western cartoon, 3d render, ugly'
     },
     'cinematic': {
         'name': '시네마틱',
         'description': '영화 같은 느낌',
         'keywords': ['cinematic', 'dramatic', 'film', 'movie'],
-        'icon': '🎬'
+        'icon': '🎬',
+        'prompt_template': 'cinematic film style, Hollywood movie aesthetic, dramatic cinematic lighting, epic wide-angle composition, film grain texture, anamorphic lens flare, color grading, {topic}',
+        'negative_prompt': 'flat, amateur, snapshot, low production value, home video'
     },
     '3d': {
         'name': '3D 렌더링',
         'description': '3D 그래픽',
         'keywords': ['3d', 'render', 'graphics', 'modern'],
-        'icon': '🎮'
+        'icon': '🎮',
+        'prompt_template': '3D rendered CGI graphics, modern 3D design, smooth glossy surfaces, ray tracing reflections, high polygon count, Unreal Engine quality, octane render, {topic}',
+        'negative_prompt': '2d, flat, hand drawn, sketch, low poly, pixelated, amateur'
     },
     'documentary': {
         'name': '다큐멘터리',
         'description': '실사 영상',
         'keywords': ['documentary', 'realistic', 'nature', 'real'],
-        'icon': '🌍'
+        'icon': '🌍',
+        'prompt_template': 'documentary photography style, realistic photographic quality, natural ambient lighting, authentic real-world scene, National Geographic quality, professional camera work, {topic}',
+        'negative_prompt': 'cartoon, anime, illustration, fake, staged, artificial, CGI'
     },
     'performance_metrics': {
         'name': '성과 지표',
         'description': '차트와 그래프',
         'keywords': ['charts', 'graphs', 'metrics', 'data'],
-        'icon': '📊'
+        'icon': '📊',
+        'prompt_template': 'professional business charts and graphs, clean data visualization, infographic design style, corporate metrics dashboard, modern UI/UX design, clear data presentation, {topic}',
+        'negative_prompt': 'cluttered, messy data, unreadable, hand-drawn, amateur, confusing'
     },
     'office_scene': {
         'name': '오피스 장면',
         'description': '사무실 배경',
         'keywords': ['office', 'workplace', 'business', 'desk'],
-        'icon': '🏢'
+        'icon': '🏢',
+        'prompt_template': 'modern corporate office environment, professional workplace scene, contemporary business office setting, glass and steel interior, natural office lighting, {topic}',
+        'negative_prompt': 'home, outdoor, casual, messy, cluttered, unprofessional'
     }
 }
 
@@ -1473,7 +1489,7 @@ def generate_script_with_style():
 
 @app.route('/api/tts/preview', methods=['POST'])
 def preview_tts():
-    """TTS 목소리 미리듣기"""
+    """TTS 목소리 미리듣기 - Google Cloud TTS 사용"""
     try:
         data = request.json
         
@@ -1484,25 +1500,85 @@ def preview_tts():
             }), 400
         
         text = data['text']
-        voice = data.get('voice', 'ko-KR-Neural2-A')
+        voice_key = data.get('voice', 'male_young')
         
-        # TTS 생성
-        from gtts import gTTS
+        # VOICE_PRESETS에서 목소리 정보 가져오기
+        voice_config = VOICE_PRESETS.get(voice_key, VOICE_PRESETS['male_young'])
+        voice_id = voice_config['voice_id']
+        pitch = voice_config.get('pitch', 0)
+        speed = voice_config.get('speed', 1.0)
+        
+        # Google Cloud TTS 사용 (설정되어 있으면)
+        google_credentials = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
         
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"preview_{timestamp}.mp3"
+        filename = f"preview_{voice_key}_{timestamp}.mp3"
         file_path = AUDIO_DIR / filename
         
-        tts = gTTS(text=text, lang='ko')
+        if google_credentials and Path(google_credentials).exists():
+            try:
+                from google.cloud import texttospeech
+                
+                # Google Cloud TTS 클라이언트 생성
+                client = texttospeech.TextToSpeechClient()
+                
+                # 음성 합성 요청 구성
+                synthesis_input = texttospeech.SynthesisInput(text=text)
+                
+                voice = texttospeech.VoiceSelectionParams(
+                    language_code="ko-KR",
+                    name=voice_id
+                )
+                
+                audio_config = texttospeech.AudioConfig(
+                    audio_encoding=texttospeech.AudioEncoding.MP3,
+                    speaking_rate=speed,
+                    pitch=pitch
+                )
+                
+                # 음성 합성 실행
+                response = client.synthesize_speech(
+                    input=synthesis_input,
+                    voice=voice,
+                    audio_config=audio_config
+                )
+                
+                # 오디오 파일 저장
+                with open(file_path, 'wb') as out:
+                    out.write(response.audio_content)
+                
+                logger.info(f"✅ Google Cloud TTS 생성: {filename} (voice: {voice_id})")
+                
+                return jsonify({
+                    'success': True,
+                    'filename': filename,
+                    'url': f'/api/audio/preview/{filename}',
+                    'voice': voice_key,
+                    'voice_name': voice_config['name'],
+                    'message': f'{voice_config["name"]} 목소리로 생성되었습니다'
+                })
+                
+            except Exception as e:
+                logger.warning(f"⚠️ Google Cloud TTS 오류, gTTS로 폴백: {e}")
+                # Google TTS 실패 시 gTTS 사용
+        
+        # gTTS 폴백 (Google Cloud TTS 없을 때)
+        from gtts import gTTS
+        
+        # gTTS는 목소리 변경 불가하므로 속도만 조절
+        tts = gTTS(text=text, lang='ko', slow=(speed < 0.95))
         tts.save(str(file_path))
         
-        logger.info(f"✅ TTS 미리듣기 생성: {filename}")
+        logger.info(f"✅ gTTS 생성: {filename} (기본 목소리)")
         
         return jsonify({
             'success': True,
             'filename': filename,
             'url': f'/api/audio/preview/{filename}',
-            'message': 'TTS가 생성되었습니다'
+            'voice': voice_key,
+            'voice_name': voice_config['name'],
+            'message': f'{voice_config["name"]} 목소리로 생성되었습니다 (gTTS)',
+            'note': 'Google Cloud TTS 설정 시 더 다양한 목소리 사용 가능'
         })
         
     except Exception as e:
@@ -1528,6 +1604,29 @@ def serve_preview_audio(filename):
         
     except Exception as e:
         logger.error(f"❌ 오디오 제공 오류: {e}")
+        return jsonify({
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/audio/sample/<voice_key>')
+def serve_sample_audio(voice_key):
+    """목소리 샘플 오디오 파일 제공"""
+    try:
+        filename = f"sample_{voice_key}.mp3"
+        file_path = AUDIO_DIR / filename
+        
+        if not file_path.exists():
+            # 샘플 파일이 없으면 404 대신 생성하도록 안내
+            return jsonify({
+                'error': '샘플 파일이 없습니다',
+                'note': 'generate_voice_samples.py를 실행하여 샘플을 생성하세요'
+            }), 404
+        
+        return send_file(file_path, mimetype='audio/mpeg')
+        
+    except Exception as e:
+        logger.error(f"❌ 샘플 오디오 제공 오류: {e}")
         return jsonify({
             'error': str(e)
         }), 500
