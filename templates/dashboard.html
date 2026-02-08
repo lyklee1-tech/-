@@ -217,6 +217,50 @@
             color: #666;
         }
 
+        .voice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .voice-card {
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 18px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .voice-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .voice-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+        }
+
+        .voice-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .voice-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 1em;
+            margin-bottom: 5px;
+        }
+
+        .voice-desc {
+            font-size: 0.8em;
+            color: #666;
+        }
+
         .duration-btn {
             padding: 15px;
             border: 2px solid #e0e0e0;
@@ -516,10 +560,28 @@
                 <input type="hidden" id="selectedAspectRatio" name="aspect_ratio" value="1:1">
             </div>
 
-            <!-- 3단계: 스타일 선택 -->
+            <!-- 3단계: 목소리 선택 -->
             <div class="section">
                 <div class="section-title">
                     <span>3️⃣</span>
+                    <span>더빙 목소리</span>
+                </div>
+                <div class="voice-grid" id="voiceGrid">
+                    {% for key, voice in voices.items() %}
+                    <div class="voice-card" data-voice="{{ key }}" onclick="selectVoice('{{ key }}')">
+                        <div class="voice-icon">{{ voice.icon }}</div>
+                        <div class="voice-name">{{ voice.name }}</div>
+                        <div class="voice-desc">{{ voice.description }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" id="selectedVoice" name="voice" value="male_young">
+            </div>
+
+            <!-- 4단계: 스타일 선택 -->
+            <div class="section">
+                <div class="section-title">
+                    <span>4️⃣</span>
                     <span>비디오 스타일</span>
                 </div>
                 <div class="template-grid" id="styleGrid">
@@ -534,10 +596,10 @@
                 <input type="hidden" id="selectedStyle" name="style" value="professional">
             </div>
 
-            <!-- 4단계: 영상 길이 -->
+            <!-- 5단계: 영상 길이 -->
             <div class="section">
                 <div class="section-title">
-                    <span>4️⃣</span>
+                    <span>5️⃣</span>
                     <span>영상 길이</span>
                 </div>
                 <div class="duration-grid" id="durationGrid">
@@ -551,7 +613,7 @@
                 <input type="hidden" id="selectedDuration" name="duration" value="20">
             </div>
 
-            <!-- 5단계: 생성 버튼 -->
+            <!-- 6단계: 생성 버튼 -->
             <button type="submit" class="generate-btn" id="generateBtn">
                 🚀 비디오 생성하기 (완전 무료!)
             </button>
@@ -612,6 +674,15 @@
             document.getElementById('selectedAspectRatio').value = ratio;
         }
 
+        // 목소리 선택
+        function selectVoice(voice) {
+            document.querySelectorAll('.voice-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.voice-card').classList.add('selected');
+            document.getElementById('selectedVoice').value = voice;
+        }
+
         // 스타일 선택
         function selectStyle(style) {
             document.querySelectorAll('.template-card').forEach(card => {
@@ -632,6 +703,7 @@
 
         // 기본 선택
         document.querySelector('.aspect-ratio-btn').classList.add('selected');
+        document.querySelector('.voice-card').classList.add('selected');
         document.querySelector('.template-card').classList.add('selected');
         document.querySelector('.duration-btn').classList.add('selected');
 
@@ -641,6 +713,7 @@
 
             const topic = document.getElementById('topic').value;
             const aspectRatio = document.getElementById('selectedAspectRatio').value;
+            const voice = document.getElementById('selectedVoice').value;
             const style = document.getElementById('selectedStyle').value;
             const duration = parseInt(document.getElementById('selectedDuration').value);
 
@@ -656,7 +729,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ topic, aspect_ratio: aspectRatio, style, duration })
+                    body: JSON.stringify({ topic, aspect_ratio: aspectRatio, voice, style, duration })
                 });
 
                 const data = await response.json();

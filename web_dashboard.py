@@ -16,12 +16,16 @@ from loguru import logger
 # 트렌드 분석기 임포트
 sys.path.insert(0, str(Path(__file__).parent))
 from src.data_collection.trend_analyzer import TrendAnalyzer
+from src.character_manager import CharacterManager
 
 app = Flask(__name__)
 CORS(app)
 
 # 트렌드 분석기 초기화
 trend_analyzer = TrendAnalyzer()
+
+# 캐릭터 관리자 초기화
+character_manager = CharacterManager()
 
 # 경로 설정
 BASE_DIR = Path(__file__).parent
@@ -99,13 +103,66 @@ DURATION_PRESETS = {
     'maximum': {'value': 1800, 'name': '최대 (30분)', 'icon': '🎞️'}
 }
 
+# TTS 목소리 프리셋
+VOICE_PRESETS = {
+    'male_young': {
+        'name': '남성 (젊은)',
+        'description': '밝고 에너지 넘치는',
+        'icon': '👨',
+        'voice_id': 'ko-KR-Neural2-C',
+        'pitch': 0,
+        'speed': 1.0
+    },
+    'male_mature': {
+        'name': '남성 (성숙한)',
+        'description': '차분하고 신뢰감 있는',
+        'icon': '👔',
+        'voice_id': 'ko-KR-Neural2-D',
+        'pitch': -2,
+        'speed': 0.95
+    },
+    'female_young': {
+        'name': '여성 (젊은)',
+        'description': '친근하고 활발한',
+        'icon': '👩',
+        'voice_id': 'ko-KR-Neural2-A',
+        'pitch': 2,
+        'speed': 1.05
+    },
+    'female_professional': {
+        'name': '여성 (전문가)',
+        'description': '정확하고 명료한',
+        'icon': '👩‍💼',
+        'voice_id': 'ko-KR-Neural2-B',
+        'pitch': 0,
+        'speed': 1.0
+    },
+    'news_anchor': {
+        'name': '뉴스 앵커',
+        'description': '뉴스 진행자 스타일',
+        'icon': '📺',
+        'voice_id': 'ko-KR-Standard-A',
+        'pitch': 0,
+        'speed': 0.9
+    },
+    'youtube_creator': {
+        'name': '유튜버',
+        'description': '생동감 있고 재미있는',
+        'icon': '🎬',
+        'voice_id': 'ko-KR-Wavenet-A',
+        'pitch': 1,
+        'speed': 1.1
+    }
+}
+
 
 @app.route('/')
 def index():
     """메인 대시보드 페이지"""
     return render_template('dashboard.html', 
                          styles=STYLE_TEMPLATES,
-                         durations=DURATION_PRESETS)
+                         durations=DURATION_PRESETS,
+                         voices=VOICE_PRESETS)
 
 
 @app.route('/api/generate', methods=['POST'])
@@ -126,12 +183,13 @@ def generate_video():
         duration = data.get('duration', 20)
         aspect_ratio = data.get('aspect_ratio', '1:1')
         style = data.get('style', 'professional')
+        voice = data.get('voice', 'male_young')
         custom_script = data.get('script')
         
         if not topic:
             return jsonify({'success': False, 'error': '토픽을 입력해주세요!'}), 400
         
-        logger.info(f"🎬 비디오 생성 시작: {topic} ({duration}초, {aspect_ratio}, {style} 스타일)")
+        logger.info(f"🎬 비디오 생성 시작: {topic} ({duration}초, {aspect_ratio}, {style} 스타일, {voice} 목소리)")
         
         # GenSpark AutoPilot 실행
         cmd = [
@@ -183,6 +241,7 @@ def generate_video():
             'duration': duration,
             'aspect_ratio': aspect_ratio,
             'style': style,
+            'voice': voice,
             'audio_file': str(audio_file.relative_to(BASE_DIR)),
             'scene_file': str(scene_file.relative_to(BASE_DIR)),
             'audio_size': audio_file.stat().st_size,
@@ -336,6 +395,103 @@ def get_top_trend():
         
     except Exception as e:
         logger.error(f"❌ TOP 트렌드 오류: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/characters', methods=['GET'])
+def get_characters():
+    """
+    사용자의 캐릭터 목록 가져오기
+    GET /api/characters?user_id=xxx
+    """
+    try:
+        user_id = request.args.get('user_id', 'default_user')
+        characters = character_manager.get_user_characters(user_id)
+        
+        return jsonify({
+            'success': True,
+            'characters': characters,
+            'count': len(characters)
+        })
+    except Exception as e:
+        logger.error(f"❌ 캐릭터 목록 조회 오류: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/characters/create', methods=['POST'])
+def create_character():
+    """
+    새 캐릭터 생성
+    POST /api/characters/create
+    Body: {
+        "user_id": "user_123",
+        "character_name": "경제 앵커",
+        "style": "professional",
+        "voice": "female_professional",
+        "appearance_prompt": "optional custom prompt"
+    }
+    """
+    try:
+        data = request.json
+        user_id = data.get('user_id', 'default_user')
+        character_name = data.get('character_name')
+        style = data.get('style', 'professional')
+        voice = data.get('voice', 'male_young')
+        appearance_prompt = data.get('appearance_prompt')
+        
+        if not character_name:
+            return jsonify({
+                'success': False,
+                'error': '캐릭터 이름을 입력해주세요'
+            }), 400
+        
+        character = character_manager.create_character(
+            user_id=user_id,
+            character_name=character_name,
+            style=style,
+            voice=voice,
+            appearance_prompt=appearance_prompt
+        )
+        
+        logger.info(f"✅ 캐릭터 생성: {character_name}")
+        return jsonify({
+            'success': True,
+            'character': character
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ 캐릭터 생성 오류: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/characters/<character_id>/stats', methods=['GET'])
+def get_character_stats(character_id):
+    """캐릭터 통계 조회"""
+    try:
+        stats = character_manager.get_character_stats(character_id)
+        
+        if stats:
+            return jsonify({
+                'success': True,
+                'stats': stats
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': '캐릭터를 찾을 수 없습니다'
+            }), 404
+            
+    except Exception as e:
+        logger.error(f"❌ 캐릭터 통계 조회 오류: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
