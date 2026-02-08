@@ -124,13 +124,14 @@ def generate_video():
         data = request.json
         topic = data.get('topic')
         duration = data.get('duration', 20)
+        aspect_ratio = data.get('aspect_ratio', '1:1')
         style = data.get('style', 'professional')
         custom_script = data.get('script')
         
         if not topic:
             return jsonify({'success': False, 'error': '토픽을 입력해주세요!'}), 400
         
-        logger.info(f"🎬 비디오 생성 시작: {topic} ({duration}초, {style} 스타일)")
+        logger.info(f"🎬 비디오 생성 시작: {topic} ({duration}초, {aspect_ratio}, {style} 스타일)")
         
         # GenSpark AutoPilot 실행
         cmd = [
@@ -180,6 +181,7 @@ def generate_video():
             'success': True,
             'topic': topic,
             'duration': duration,
+            'aspect_ratio': aspect_ratio,
             'style': style,
             'audio_file': str(audio_file.relative_to(BASE_DIR)),
             'scene_file': str(scene_file.relative_to(BASE_DIR)),

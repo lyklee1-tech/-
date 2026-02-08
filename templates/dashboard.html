@@ -147,6 +147,76 @@
             margin-bottom: 30px;
         }
 
+        .aspect-ratio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .aspect-ratio-btn {
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            position: relative;
+        }
+
+        .aspect-ratio-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .aspect-ratio-btn.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+        }
+
+        .aspect-ratio-preview {
+            width: 80px;
+            margin: 0 auto 12px auto;
+            background: #f0f0f0;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            color: #999;
+            font-weight: bold;
+        }
+
+        .aspect-ratio-preview.ratio-1-1 {
+            height: 80px;
+        }
+
+        .aspect-ratio-preview.ratio-3-4 {
+            height: 107px;
+        }
+
+        .aspect-ratio-preview.ratio-9-16 {
+            height: 142px;
+        }
+
+        .aspect-ratio-preview.ratio-16-9 {
+            height: 45px;
+        }
+
+        .aspect-ratio-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .aspect-ratio-desc {
+            font-size: 0.85em;
+            color: #666;
+        }
+
         .duration-btn {
             padding: 15px;
             border: 2px solid #e0e0e0;
@@ -415,10 +485,41 @@
                 </div>
             </div>
 
-            <!-- 2단계: 스타일 선택 -->
+            <!-- 2단계: 화면 비율 -->
             <div class="section">
                 <div class="section-title">
                     <span>2️⃣</span>
+                    <span>화면 비율</span>
+                </div>
+                <div class="aspect-ratio-grid" id="aspectRatioGrid">
+                    <div class="aspect-ratio-btn selected" data-ratio="1:1" onclick="selectAspectRatio('1:1')">
+                        <div class="aspect-ratio-preview ratio-1-1">1:1</div>
+                        <div class="aspect-ratio-name">정사각형</div>
+                        <div class="aspect-ratio-desc">Instagram</div>
+                    </div>
+                    <div class="aspect-ratio-btn" data-ratio="3:4" onclick="selectAspectRatio('3:4')">
+                        <div class="aspect-ratio-preview ratio-3-4">3:4</div>
+                        <div class="aspect-ratio-name">세로형</div>
+                        <div class="aspect-ratio-desc">Portrait</div>
+                    </div>
+                    <div class="aspect-ratio-btn" data-ratio="9:16" onclick="selectAspectRatio('9:16')">
+                        <div class="aspect-ratio-preview ratio-9-16">9:16</div>
+                        <div class="aspect-ratio-name">모바일 세로</div>
+                        <div class="aspect-ratio-desc">TikTok, Shorts</div>
+                    </div>
+                    <div class="aspect-ratio-btn" data-ratio="16:9" onclick="selectAspectRatio('16:9')">
+                        <div class="aspect-ratio-preview ratio-16-9">16:9</div>
+                        <div class="aspect-ratio-name">가로형</div>
+                        <div class="aspect-ratio-desc">YouTube, TV</div>
+                    </div>
+                </div>
+                <input type="hidden" id="selectedAspectRatio" name="aspect_ratio" value="1:1">
+            </div>
+
+            <!-- 3단계: 스타일 선택 -->
+            <div class="section">
+                <div class="section-title">
+                    <span>3️⃣</span>
                     <span>비디오 스타일</span>
                 </div>
                 <div class="template-grid" id="styleGrid">
@@ -433,10 +534,10 @@
                 <input type="hidden" id="selectedStyle" name="style" value="professional">
             </div>
 
-            <!-- 3단계: 영상 길이 -->
+            <!-- 4단계: 영상 길이 -->
             <div class="section">
                 <div class="section-title">
-                    <span>3️⃣</span>
+                    <span>4️⃣</span>
                     <span>영상 길이</span>
                 </div>
                 <div class="duration-grid" id="durationGrid">
@@ -450,7 +551,7 @@
                 <input type="hidden" id="selectedDuration" name="duration" value="20">
             </div>
 
-            <!-- 4단계: 생성 버튼 -->
+            <!-- 5단계: 생성 버튼 -->
             <button type="submit" class="generate-btn" id="generateBtn">
                 🚀 비디오 생성하기 (완전 무료!)
             </button>
@@ -502,6 +603,15 @@
     <script>
         let currentResult = null;
 
+        // 화면 비율 선택
+        function selectAspectRatio(ratio) {
+            document.querySelectorAll('.aspect-ratio-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            event.target.closest('.aspect-ratio-btn').classList.add('selected');
+            document.getElementById('selectedAspectRatio').value = ratio;
+        }
+
         // 스타일 선택
         function selectStyle(style) {
             document.querySelectorAll('.template-card').forEach(card => {
@@ -521,6 +631,7 @@
         }
 
         // 기본 선택
+        document.querySelector('.aspect-ratio-btn').classList.add('selected');
         document.querySelector('.template-card').classList.add('selected');
         document.querySelector('.duration-btn').classList.add('selected');
 
@@ -529,6 +640,7 @@
             e.preventDefault();
 
             const topic = document.getElementById('topic').value;
+            const aspectRatio = document.getElementById('selectedAspectRatio').value;
             const style = document.getElementById('selectedStyle').value;
             const duration = parseInt(document.getElementById('selectedDuration').value);
 
@@ -544,7 +656,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ topic, style, duration })
+                    body: JSON.stringify({ topic, aspect_ratio: aspectRatio, style, duration })
                 });
 
                 const data = await response.json();
