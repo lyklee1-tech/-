@@ -720,9 +720,38 @@
                     <button type="button" onclick="generateScript()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
                         🤖 AI 대본 자동 생성
                     </button>
-                    <button type="button" onclick="showScriptUpload()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
-                        📤 대본 파일 업로드
+                    <button type="button" onclick="showStyleLearning()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                        🎓 스타일 학습
                     </button>
+                    <button type="button" onclick="showScriptUpload()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                        📤 파일 업로드
+                    </button>
+                </div>
+
+                <!-- 스타일 학습 영역 -->
+                <div id="styleLearningArea" style="display: none; margin-bottom: 15px; padding: 15px; background: #f0f4ff; border-radius: 8px; border: 2px solid #667eea;">
+                    <h4 style="margin: 0 0 10px 0; color: #667eea;">🎓 YouTube 채널 스타일 학습</h4>
+                    <p style="font-size: 0.9em; color: #666; margin-bottom: 10px;">
+                        YouTube 채널 URL을 입력하면 해당 채널의 영상 스타일을 분석하여 비슷한 대본을 생성합니다.
+                    </p>
+                    <input type="text" id="youtubeChannelUrl" placeholder="예: https://www.youtube.com/@경제사냥꾼" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 10px;">
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" onclick="learnChannelStyle()" style="flex: 1; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                            🔍 스타일 분석 시작
+                        </button>
+                        <button type="button" onclick="cancelStyleLearning()" style="padding: 10px 20px; background: #999; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                            취소
+                        </button>
+                    </div>
+                    
+                    <!-- 분석 결과 -->
+                    <div id="styleAnalysisResult" style="display: none; margin-top: 15px; padding: 15px; background: white; border-radius: 6px; border: 1px solid #ddd;">
+                        <h5 style="margin: 0 0 10px 0; color: #333;">📊 분석 결과</h5>
+                        <div id="styleAnalysisContent"></div>
+                        <button type="button" onclick="generateScriptWithStyle()" style="margin-top: 10px; padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%;">
+                            ✨ 이 스타일로 대본 생성
+                        </button>
+                    </div>
                 </div>
 
                 <!-- 대본 업로드 영역 -->
@@ -1449,6 +1478,138 @@
             } catch (error) {
                 showAlert('error', '❌ 삭제 오류');
                 console.error('대본 삭제 오류:', error);
+            }
+        }
+        
+        // ============================================================
+        // 스타일 학습 함수들
+        // ============================================================
+        
+        let learnedStyle = null;
+        
+        // 스타일 학습 영역 표시
+        function showStyleLearning() {
+            document.getElementById('styleLearningArea').style.display = 'block';
+            document.getElementById('scriptUploadArea').style.display = 'none';
+        }
+        
+        // 스타일 학습 취소
+        function cancelStyleLearning() {
+            document.getElementById('styleLearningArea').style.display = 'none';
+            document.getElementById('youtubeChannelUrl').value = '';
+            document.getElementById('styleAnalysisResult').style.display = 'none';
+        }
+        
+        // 채널 스타일 학습
+        async function learnChannelStyle() {
+            const channelUrl = document.getElementById('youtubeChannelUrl').value;
+            
+            if (!channelUrl || !channelUrl.trim()) {
+                showAlert('error', 'YouTube 채널 URL을 입력해주세요!');
+                return;
+            }
+            
+            showAlert('info', '🔍 채널 스타일을 분석 중입니다... (30초~1분 소요)');
+            
+            try {
+                const response = await fetch('/api/learn-style', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        channel_url: channelUrl
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    learnedStyle = data.style;
+                    
+                    showAlert('success', '✅ 스타일 분석 완료!');
+                    
+                    // 분석 결과 표시
+                    const resultDiv = document.getElementById('styleAnalysisContent');
+                    resultDiv.innerHTML = `
+                        <div style="margin-bottom: 10px;">
+                            <strong>📺 채널명:</strong> ${data.style.channel_name || '분석 중...'}
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <strong>🎬 분석된 영상:</strong> ${data.style.videos_analyzed || 0}개
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <strong>✍️ 스타일 특징:</strong>
+                            <ul style="margin: 5px 0; padding-left: 20px;">
+                                ${data.style.characteristics?.map(c => `<li>${c}</li>`).join('') || '<li>분석 완료</li>'}
+                            </ul>
+                        </div>
+                        <div style="padding: 10px; background: #f9f9f9; border-radius: 6px; font-size: 0.9em; color: #666;">
+                            💡 이 스타일로 대본을 생성하면 "${data.style.channel_name}"와 비슷한 톤과 구조로 작성됩니다.
+                        </div>
+                    `;
+                    
+                    document.getElementById('styleAnalysisResult').style.display = 'block';
+                } else {
+                    showAlert('error', '❌ ' + data.error);
+                }
+            } catch (error) {
+                showAlert('error', '❌ 네트워크 오류');
+                console.error('스타일 학습 오류:', error);
+            }
+        }
+        
+        // 학습한 스타일로 대본 생성
+        async function generateScriptWithStyle() {
+            const topic = document.getElementById('topic').value;
+            const duration = parseInt(document.getElementById('selectedDuration').value);
+            
+            if (!topic) {
+                showAlert('error', '주제를 먼저 입력해주세요!');
+                return;
+            }
+            
+            if (!duration || duration <= 0) {
+                showAlert('warning', '⚠️ 영상 길이를 먼저 선택해주세요!');
+                return;
+            }
+            
+            if (!learnedStyle) {
+                showAlert('error', '스타일 분석을 먼저 완료해주세요!');
+                return;
+            }
+            
+            showAlert('info', `🎨 "${learnedStyle.channel_name}" 스타일로 대본을 생성 중입니다...`);
+            
+            try {
+                const response = await fetch('/api/scripts/generate-with-style', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        topic: topic,
+                        duration: duration,
+                        style: learnedStyle
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('success', `✅ "${learnedStyle.channel_name}" 스타일 대본이 생성되었습니다!`);
+                    document.getElementById('scriptContent').value = data.content;
+                    document.getElementById('scriptEditor').style.display = 'block';
+                    
+                    // 대본 에디터로 스크롤
+                    document.getElementById('scriptEditor').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    
+                    // 스타일 학습 영역 닫기
+                    cancelStyleLearning();
+                    
+                    await loadScripts();
+                } else {
+                    showAlert('error', '❌ ' + data.error);
+                }
+            } catch (error) {
+                showAlert('error', '❌ 네트워크 오류');
+                console.error('스타일 대본 생성 오류:', error);
             }
         }
         

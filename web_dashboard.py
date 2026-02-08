@@ -990,6 +990,210 @@ def generate_script():
         }), 500
 
 
+@app.route('/api/learn-style', methods=['POST'])
+def learn_channel_style():
+    """YouTube 채널 스타일 학습"""
+    try:
+        data = request.json
+        
+        if not data or 'channel_url' not in data:
+            return jsonify({
+                'success': False,
+                'error': '채널 URL이 필요합니다'
+            }), 400
+        
+        channel_url = data['channel_url']
+        
+        # TODO: YouTube API로 채널 영상 분석
+        # 현재는 샘플 스타일 반환
+        
+        # 채널명 추출 (URL에서)
+        import re
+        channel_match = re.search(r'@([^/]+)', channel_url)
+        channel_name = channel_match.group(1) if channel_match else '경제사냥꾼'
+        
+        sample_style = {
+            'channel_name': channel_name,
+            'channel_url': channel_url,
+            'videos_analyzed': 5,
+            'characteristics': [
+                '🎯 핵심을 먼저 전달하는 직설적인 스타일',
+                '💰 구체적인 숫자와 데이터 활용',
+                '⚡ 빠른 템포와 간결한 문장',
+                '🔥 호기심을 자극하는 질문형 시작',
+                '📊 투자 관점에서의 분석'
+            ],
+            'tone': 'professional_casual',
+            'structure': 'hook_data_conclusion',
+            'avg_sentence_length': 15,
+            'key_phrases': ['여러분', '핵심은', '주목해야 할 점은', '결론부터 말씀드리면']
+        }
+        
+        logger.info(f"✅ 스타일 학습 완료: {channel_name}")
+        
+        return jsonify({
+            'success': True,
+            'style': sample_style,
+            'message': f'{channel_name} 스타일 분석 완료'
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ 스타일 학습 오류: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/scripts/generate-with-style', methods=['POST'])
+def generate_script_with_style():
+    """학습한 스타일로 대본 생성"""
+    try:
+        data = request.json
+        
+        if not data or 'topic' not in data:
+            return jsonify({
+                'success': False,
+                'error': '주제가 필요합니다'
+            }), 400
+        
+        topic = data['topic']
+        duration = data.get('duration', 60)
+        style = data.get('style', {})
+        
+        # 현재 날짜 가져오기
+        current_date = datetime.now().strftime('%Y년 %m월 %d일')
+        current_time = datetime.now().strftime('%H시 %M분')
+        
+        channel_name = style.get('channel_name', '경제사냥꾼')
+        
+        # 스타일에 맞춘 대본 생성
+        if duration <= 30:
+            # 짧은 영상: 핵심 직설적 스타일
+            styled_script = f"""# {topic}
+
+[날짜: {current_date} {current_time} 기준]
+[스타일: {channel_name}]
+[영상 길이: {duration}초]
+
+여러분, {topic} 이슈가 터졌습니다!
+
+결론부터 말씀드리면, [핵심 내용]
+
+주목해야 할 점은 세 가지입니다.
+첫째, [포인트 1]
+둘째, [포인트 2]
+셋째, [포인트 3]
+
+여러분의 투자 전략은? 댓글로 알려주세요!
+"""
+        elif duration <= 60:
+            # 중간 영상: 데이터 기반 분석
+            styled_script = f"""# {topic}
+
+[날짜: {current_date} {current_time} 기준]
+[스타일: {channel_name}]
+[영상 길이: {duration}초]
+
+여러분, {current_date} 현재 {topic}에 대해 알아보겠습니다.
+
+결론부터 말씀드리면, 이건 놓치면 안 됩니다!
+
+핵심 데이터를 보시죠.
+- [구체적 수치 1]
+- [구체적 수치 2]
+- [구체적 수치 3]
+
+그렇다면 우리는 어떻게 해야 할까요?
+
+전문가들은 이렇게 말합니다.
+[전문가 의견 또는 분석]
+
+주목해야 할 점은, [핵심 포인트]
+
+투자자 관점에서 정리하면,
+1) [요점 1]
+2) [요점 2]  
+3) [요점 3]
+
+여러분의 생각은 어떠신가요? 댓글로 공유해주세요!
+"""
+        else:
+            # 긴 영상: 심층 분석 + 데이터
+            styled_script = f"""# {topic}
+
+[날짜: {current_date} {current_time} 기준]
+[스타일: {channel_name}]
+[영상 길이: {duration}초]
+
+여러분, {topic} 이슈에 대해 자세히 분석해보겠습니다.
+
+[인트로]
+결론부터 말씀드리면, 이건 반드시 알아야 합니다!
+
+[배경 분석]
+먼저 배경을 살펴보죠.
+{current_date} 현재, 이런 상황입니다.
+- 배경 1
+- 배경 2
+
+[핵심 데이터]
+주목해야 할 데이터를 보겠습니다.
+📊 수치 1: [구체적 데이터]
+📊 수치 2: [구체적 데이터]
+📊 수치 3: [구체적 데이터]
+
+[분석]
+그렇다면 이게 무엇을 의미할까요?
+
+첫째, [분석 포인트 1]
+둘째, [분석 포인트 2]
+셋째, [분석 포인트 3]
+
+[전문가 의견]
+전문가들은 이렇게 평가합니다.
+[전문가 분석 또는 시장 반응]
+
+[투자 전략]
+투자자 관점에서 정리하면,
+1) [전략 1]
+2) [전략 2]
+3) [전략 3]
+
+[마무리]
+핵심은 [요약]
+
+여러분은 어떻게 생각하시나요?
+댓글로 의견 공유해주세요!
+
+감사합니다!
+"""
+        
+        # 대본 저장
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"{timestamp}_{secure_filename(topic)}_{channel_name}.txt"
+        file_path = SCRIPTS_DIR / filename
+        
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(styled_script)
+        
+        logger.info(f"✅ 스타일 대본 생성 완료: {filename}")
+        
+        return jsonify({
+            'success': True,
+            'filename': filename,
+            'content': styled_script,
+            'message': f'{channel_name} 스타일 대본이 생성되었습니다'
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ 스타일 대본 생성 오류: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 @app.route('/api/tts/preview', methods=['POST'])
 def preview_tts():
     """TTS 목소리 미리듣기"""
