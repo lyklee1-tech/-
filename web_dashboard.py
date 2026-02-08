@@ -9,10 +9,13 @@ import sys
 import json
 import time
 import subprocess
+import requests
 from pathlib import Path
 from datetime import datetime
 from loguru import logger
 from werkzeug.utils import secure_filename
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 
 # 트렌드 분석기 임포트
 sys.path.insert(0, str(Path(__file__).parent))
