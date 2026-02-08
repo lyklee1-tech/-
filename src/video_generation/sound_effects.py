@@ -128,13 +128,14 @@ class SoundEffectManager:
             logger.error(f"BGM 생성 실패: {e}")
             return None
     
-    def get_sound_effect(self, effect_name: str, timing: float = 0.0) -> Optional[Dict]:
+    def get_sound_effect(self, effect_name: str, timing: float = 0.0, category: str = None) -> Optional[Dict]:
         """
         효과음 가져오기 또는 생성
         
         Args:
             effect_name: 효과음 이름
             timing: 재생 시작 시점 (초)
+            category: 효과음 카테고리 (intro, hook, key_point 등)
         
         Returns:
             {'path': 파일경로, 'timing': 시작시점, 'volume': 볼륨}
@@ -144,13 +145,47 @@ class SoundEffectManager:
         
         sfx_config = self.audio_config['sound_effects']
         
-        # 효과음 파일 경로
-        effect_file = self.sfx_library / f'{effect_name}.mp3'
+        # 1. 카테고리 폴더에서 찾기 (업로드된 파일 우선)
+        if category:
+            category_path = self.sfx_library / category
+            if category_path.exists():
+                # 해당 카테고리에서 랜덤 선택
+                sfx_files = list(category_path.glob('*.mp3')) + list(category_path.glob('*.wav'))
+                if sfx_files:
+                    selected = random.choice(sfx_files)
+                    logger.info(f"효과음 선택: {category}/{selected.name}")
+                    return {
+                        'path': str(selected),
+                        'timing': timing,
+                        'volume': sfx_config['volume']
+                    }
         
-        # 파일이 없으면 생성
-        if not effect_file.exists():
-            logger.info(f"효과음 '{effect_name}' 생성 중...")
-            self._generate_sound_effect(effect_name, effect_file)
+        # 2. 직접 파일명으로 찾기 (루트 또는 카테고리 내)
+        possible_paths = [
+            self.sfx_library / f'{effect_name}.mp3',
+            self.sfx_library / f'{effect_name}.wav',
+        ]
+        
+        # 모든 카테고리에서 검색
+        for cat in ['intro', 'hook', 'key_point', 'chart_reveal', 'conclusion', 'cta', 'outro', 'events']:
+            cat_path = self.sfx_library / cat
+            if cat_path.exists():
+                possible_paths.append(cat_path / f'{effect_name}.mp3')
+                possible_paths.append(cat_path / f'{effect_name}.wav')
+        
+        for effect_file in possible_paths:
+            if effect_file.exists():
+                logger.info(f"효과음 발견: {effect_file}")
+                return {
+                    'path': str(effect_file),
+                    'timing': timing,
+                    'volume': sfx_config['volume']
+                }
+        
+        # 3. 파일이 없으면 생성 (AI 또는 간단한 톤)
+        effect_file = self.sfx_library / f'{effect_name}.mp3'
+        logger.warning(f"효과음 '{effect_name}'을 찾을 수 없음. 생성 시도...")
+        self._generate_sound_effect(effect_name, effect_file)
         
         if effect_file.exists():
             return {
@@ -274,14 +309,16 @@ class SoundEffectManager:
         if timing_config.get('intro', {}).get('enabled', True):
             sfx_list.append({
                 'effect': timing_config['intro']['sound'],
-                'timing': 0.0
+                'timing': 0.0,
+                'category': 'intro'
             })
         
         # 후킹 멘트 (약 3초 지점)
         if timing_config.get('hook', {}).get('enabled', True):
             sfx_list.append({
                 'effect': timing_config['hook']['sound'],
-                'timing': 2.5
+                'timing': 2.5,
+                'category': 'hook'
             })
         
         # 핵심 포인트 (중간 지점들)
@@ -294,21 +331,24 @@ class SoundEffectManager:
                 mid_timing = duration * 0.4
                 sfx_list.append({
                     'effect': timing_config['key_point']['sound'],
-                    'timing': mid_timing
+                    'timing': mid_timing,
+                    'category': 'key_point'
                 })
         
         # 차트 등장 (40% 지점)
         if timing_config.get('chart_reveal', {}).get('enabled', True):
             sfx_list.append({
                 'effect': timing_config['chart_reveal']['sound'],
-                'timing': duration * 0.4
+                'timing': duration * 0.4,
+                'category': 'chart_reveal'
             })
         
         # 결론 (70% 지점)
         if timing_config.get('conclusion', {}).get('enabled', True):
             sfx_list.append({
                 'effect': timing_config['conclusion']['sound'],
-                'timing': duration * 0.7
+                'timing': duration * 0.7,
+                'category': 'conclusion'
             })
         
         # CTA (90% 지점)
@@ -316,7 +356,8 @@ class SoundEffectManager:
             if '구독' in script or '좋아요' in script:
                 sfx_list.append({
                     'effect': timing_config['cta']['sound'],
-                    'timing': duration * 0.9
+                    'timing': duration * 0.9,
+                    'category': 'cta'
                 })
         
         logger.info(f"{len(sfx_list)}개 효과음 타이밍 생성")
@@ -334,6 +375,41 @@ class SoundEffectManager:
         """
         events_config = self.audio_config['sound_effects'].get('events', {})
         return events_config.get(event_type)
+
+
+# 테스트 코드
+if __name__ == "__main__":
+    logger.add("logs/sound_effects.log", rotation="1 day")
+    
+    manager = SoundEffectManager()
+    
+    print("=" * 60)
+    print("효과음 관리 시스템 테스트")
+    print("=" * 60)
+    
+    # 효과음 생성 테스트
+    print("\n1. 효과음 생성 테스트")
+    effects = ['pop', 'ding', 'rising-tone', 'falling-tone']
+    for effect in effects:
+        sfx = manager.get_sound_effect(effect, timing=0.0)
+        if sfx:
+            print(f"  ✓ {effect}: {sfx['path']}")
+    
+    # 스크립트 기반 타이밍 생성
+    print("\n2. 스크립트 분석 테스트")
+    test_script = "비트코인이 10% 급등했습니다! 현재 가격은 5천850만원입니다. 구독과 좋아요 부탁드립니다."
+    timings = manager.get_script_sfx_timings(test_script, 60)
+    for sfx in timings:
+        print(f"  {sfx['timing']:.1f}초: {sfx['effect']}")
+    
+    # 이벤트 사운드
+    print("\n3. 이벤트 사운드 테스트")
+    events = ['price_up', 'price_down', 'alert', 'positive']
+    for event in events:
+        sound = manager.get_event_sound(event)
+        print(f"  {event}: {sound}")
+    
+    print("\n✅ 테스트 완료!")
 
 
 # 테스트 코드

@@ -39,8 +39,8 @@ video:
       fade_in: 1.0  # 페이드인 시간 (초)
       fade_out: 2.0  # 페이드아웃 시간 (초)
       # 음악 소스 (자동 생성 또는 파일 경로)
-      source: "auto"  # auto: AI 생성, file: 직접 제공
-      file_path: "data/audio/bgm/"  # 파일 소스 사용 시 경로
+      source: "file"  # auto: AI 생성, file: 직접 제공
+      file_path: "data/audio/bgm/"  # 파일 소스 사용 시 경로 (업로드한 BGM 사용)
       
       # AI 생성 BGM 스타일
       style: "corporate-minimal"  # 경제 뉴스에 어울리는 스타일
@@ -50,6 +50,7 @@ video:
     sound_effects:
       enabled: true  # 효과음 사용 여부
       volume: 0.4  # 효과음 볼륨 (0.0-1.0)
+      library_path: "data/audio/sfx/"  # 효과음 파일 경로 (업로드한 SFX 사용)
       
       # 타이밍별 효과음 설정
       timing:
@@ -101,7 +102,7 @@ video:
       
       # 자동 생성 설정
       auto_generate:
-        enabled: true  # AI로 효과음 자동 생성
+        enabled: false  # AI로 효과음 자동 생성 (로컬 파일 우선 사용)
         provider: "elevenlabs"  # elevenlabs 또는 로컬 라이브러리
         style: "modern-ui"  # 현대적이고 깔끔한 UI 사운드
 

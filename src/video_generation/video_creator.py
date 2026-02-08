@@ -186,7 +186,8 @@ class VideoCreator:
             for sfx_info in sfx_timings:
                 sfx = sfx_manager.get_sound_effect(
                     sfx_info['effect'],
-                    sfx_info['timing']
+                    sfx_info['timing'],
+                    category=sfx_info.get('category')  # 카테고리 전달
                 )
                 
                 if sfx and os.path.exists(sfx['path']):
