@@ -1004,13 +1004,156 @@ def learn_channel_style():
         
         channel_url = data['channel_url']
         
-        # TODO: YouTube API로 채널 영상 분석
-        # 현재는 샘플 스타일 반환
-        
         # 채널명 추출 (URL에서)
         import re
         channel_match = re.search(r'@([^/]+)', channel_url)
-        channel_name = channel_match.group(1) if channel_match else '경제사냥꾼'
+        channel_name = channel_match.group(1) if channel_match else '알 수 없는 채널'
+        
+        # YouTube API 키 확인
+        youtube_api_key = os.getenv('YOUTUBE_API_KEY')
+        
+        if youtube_api_key and youtube_api_key != 'your_youtube_api_key':
+            # YouTube API 사용
+            try:
+                logger.info(f"🔍 YouTube API로 채널 분석 시작: {channel_name}")
+                
+                # 1. 채널 ID 가져오기
+                search_url = "https://www.googleapis.com/youtube/v3/search"
+                search_params = {
+                    'part': 'snippet',
+                    'q': channel_name,
+                    'type': 'channel',
+                    'maxResults': 1,
+                    'key': youtube_api_key
+                }
+                
+                search_response = requests.get(search_url, params=search_params, timeout=10)
+                search_response.raise_for_status()
+                search_data = search_response.json()
+                
+                if not search_data.get('items'):
+                    raise Exception('채널을 찾을 수 없습니다')
+                
+                channel_id = search_data['items'][0]['snippet']['channelId']
+                actual_channel_name = search_data['items'][0]['snippet']['title']
+                
+                logger.info(f"✅ 채널 발견: {actual_channel_name} (ID: {channel_id})")
+                
+                # 2. 채널의 최근 영상 가져오기
+                videos_url = "https://www.googleapis.com/youtube/v3/search"
+                videos_params = {
+                    'part': 'snippet',
+                    'channelId': channel_id,
+                    'type': 'video',
+                    'order': 'date',
+                    'maxResults': 10,
+                    'key': youtube_api_key
+                }
+                
+                videos_response = requests.get(videos_url, params=videos_params, timeout=10)
+                videos_response.raise_for_status()
+                videos_data = videos_response.json()
+                
+                video_ids = [item['id']['videoId'] for item in videos_data.get('items', [])]
+                
+                logger.info(f"✅ 영상 {len(video_ids)}개 발견")
+                
+                # 3. 영상 상세 정보 가져오기
+                if video_ids:
+                    details_url = "https://www.googleapis.com/youtube/v3/videos"
+                    details_params = {
+                        'part': 'snippet,contentDetails',
+                        'id': ','.join(video_ids[:5]),  # 최근 5개만
+                        'key': youtube_api_key
+                    }
+                    
+                    details_response = requests.get(details_url, params=details_params, timeout=10)
+                    details_response.raise_for_status()
+                    details_data = details_response.json()
+                    
+                    # 4. 스타일 분석
+                    titles = []
+                    descriptions = []
+                    
+                    for item in details_data.get('items', []):
+                        snippet = item['snippet']
+                        titles.append(snippet.get('title', ''))
+                        descriptions.append(snippet.get('description', ''))
+                    
+                    # 제목 분석
+                    all_titles_text = ' '.join(titles)
+                    
+                    # 특징 분석
+                    characteristics = []
+                    
+                    # 질문형 시작 체크
+                    if any('?' in title for title in titles):
+                        characteristics.append('🔥 호기심을 자극하는 질문형 시작')
+                    
+                    # 숫자 사용 체크
+                    if any(re.search(r'\d+', title) for title in titles):
+                        characteristics.append('💰 구체적인 숫자와 데이터 활용')
+                    
+                    # 긴급성/주목성 키워드 체크
+                    urgent_keywords = ['급등', '급락', '주목', '긴급', '속보', '위험', '기회', '폭등', '폭락']
+                    if any(keyword in all_titles_text for keyword in urgent_keywords):
+                        characteristics.append('⚡ 긴급성과 주목성을 강조하는 스타일')
+                    
+                    # 간결함 체크
+                    avg_title_length = sum(len(t) for t in titles) / len(titles) if titles else 0
+                    if avg_title_length < 30:
+                        characteristics.append('⚡ 빠른 템포와 간결한 제목')
+                    
+                    # 투자 관련 키워드 체크
+                    invest_keywords = ['투자', '주식', '코인', '비트코인', '경제', '수익', '손실']
+                    if any(keyword in all_titles_text for keyword in invest_keywords):
+                        characteristics.append('📊 투자 관점에서의 분석')
+                    
+                    # 기본 특징 추가
+                    if not characteristics:
+                        characteristics = [
+                            '🎯 핵심을 먼저 전달하는 스타일',
+                            '📺 전문적이고 신뢰감 있는 톤',
+                            '💡 정보 전달 중심의 구성'
+                        ]
+                    
+                    # 키워드 추출 (간단한 방식)
+                    common_words = ['여러분', '오늘', '이번', '최근', '주목', '핵심', '중요']
+                    key_phrases = [word for word in common_words if word in all_titles_text]
+                    
+                    if not key_phrases:
+                        key_phrases = ['여러분', '핵심은', '주목해야 할 점은']
+                    
+                    style_data = {
+                        'channel_name': actual_channel_name,
+                        'channel_url': channel_url,
+                        'channel_id': channel_id,
+                        'videos_analyzed': len(titles),
+                        'characteristics': characteristics,
+                        'tone': 'professional_casual',
+                        'structure': 'hook_data_conclusion',
+                        'avg_sentence_length': 15,
+                        'key_phrases': key_phrases,
+                        'sample_titles': titles[:3]
+                    }
+                    
+                    logger.info(f"✅ 스타일 분석 완료: {actual_channel_name}")
+                    
+                    return jsonify({
+                        'success': True,
+                        'style': style_data,
+                        'message': f'{actual_channel_name} 스타일 분석 완료'
+                    })
+                    
+            except requests.exceptions.RequestException as e:
+                logger.warning(f"⚠️ YouTube API 오류, 샘플 데이터 사용: {e}")
+                # API 오류 시 샘플 데이터로 폴백
+            except Exception as e:
+                logger.warning(f"⚠️ 분석 오류, 샘플 데이터 사용: {e}")
+                # 기타 오류 시 샘플 데이터로 폴백
+        
+        # YouTube API 없거나 오류 시 샘플 스타일 반환
+        logger.info(f"ℹ️ 샘플 스타일 데이터 사용: {channel_name}")
         
         sample_style = {
             'channel_name': channel_name,
@@ -1029,12 +1172,11 @@ def learn_channel_style():
             'key_phrases': ['여러분', '핵심은', '주목해야 할 점은', '결론부터 말씀드리면']
         }
         
-        logger.info(f"✅ 스타일 학습 완료: {channel_name}")
-        
         return jsonify({
             'success': True,
             'style': sample_style,
-            'message': f'{channel_name} 스타일 분석 완료'
+            'message': f'{channel_name} 스타일 분석 완료 (샘플 데이터)',
+            'note': 'YouTube API 키를 설정하면 실제 채널 분석이 가능합니다'
         })
         
     except Exception as e:
