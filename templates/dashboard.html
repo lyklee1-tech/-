@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 GenSpark AI 비디오 생성기</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .template-card {
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .template-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .template-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+        }
+
+        .template-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .template-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .template-desc {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .duration-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .duration-btn {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .duration-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .duration-btn.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+        }
+
+        .duration-icon {
+            font-size: 2em;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .duration-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            display: none;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+
+        .result.active {
+            display: block;
+        }
+
+        .result-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .scene-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .scene-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .scene-index {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .scene-duration {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .scene-text {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .scene-prompt {
+            color: #666;
+            font-size: 0.85em;
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+        }
+
+        .download-section {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .download-btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px 30px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .download-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 GenSpark AI 비디오 생성기</h1>
+            <p>버튼 클릭 한 번으로 전문가급 비디오 자동 제작!</p>
+            <span class="badge">✨ 완전 무료 • 💰 비용 $0 • ⚡ 초고속</span>
+        </div>
+
+        <!-- 알림 영역 -->
+        <div id="alertBox"></div>
+
+        <form id="videoForm">
+            <!-- 1단계: 주제 입력 -->
+            <div class="section">
+                <div class="section-title">
+                    <span>1️⃣</span>
+                    <span>비디오 주제</span>
+                </div>
+                <div class="form-group">
+                    <label for="topic">무엇에 대한 비디오를 만들까요?</label>
+                    <input 
+                        type="text" 
+                        id="topic" 
+                        name="topic" 
+                        placeholder="예: 비트코인 급등, 코스피 3000선 돌파, 삼성전자 실적 분석..."
+                        required
+                    >
+                </div>
+            </div>
+
+            <!-- 2단계: 스타일 선택 -->
+            <div class="section">
+                <div class="section-title">
+                    <span>2️⃣</span>
+                    <span>비디오 스타일</span>
+                </div>
+                <div class="template-grid" id="styleGrid">
+                    {% for key, style in styles.items() %}
+                    <div class="template-card" data-style="{{ key }}" onclick="selectStyle('{{ key }}')">
+                        <div class="template-icon">{{ style.icon }}</div>
+                        <div class="template-name">{{ style.name }}</div>
+                        <div class="template-desc">{{ style.description }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" id="selectedStyle" name="style" value="professional">
+            </div>
+
+            <!-- 3단계: 영상 길이 -->
+            <div class="section">
+                <div class="section-title">
+                    <span>3️⃣</span>
+                    <span>영상 길이</span>
+                </div>
+                <div class="duration-grid" id="durationGrid">
+                    {% for key, preset in durations.items() %}
+                    <div class="duration-btn" data-duration="{{ preset.value }}" onclick="selectDuration({{ preset.value }})">
+                        <span class="duration-icon">{{ preset.icon }}</span>
+                        <div class="duration-name">{{ preset.name }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" id="selectedDuration" name="duration" value="20">
+            </div>
+
+            <!-- 4단계: 생성 버튼 -->
+            <button type="submit" class="generate-btn" id="generateBtn">
+                🚀 비디오 생성하기 (완전 무료!)
+            </button>
+        </form>
+
+        <!-- 로딩 상태 -->
+        <div class="loading" id="loadingBox">
+            <div class="spinner"></div>
+            <h2>🎬 비디오 생성 중...</h2>
+            <p>잠시만 기다려주세요! (약 10-30초 소요)</p>
+        </div>
+
+        <!-- 결과 표시 -->
+        <div class="result" id="resultBox">
+            <h2 class="result-title">✅ 생성 완료!</h2>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="statScenes">0</div>
+                    <div class="stat-label">장면 수</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statDuration">0초</div>
+                    <div class="stat-label">총 길이</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">$0</div>
+                    <div class="stat-label">비용</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statSize">0 KB</div>
+                    <div class="stat-label">파일 크기</div>
+                </div>
+            </div>
+
+            <div id="sceneList"></div>
+
+            <div class="download-section">
+                <button class="download-btn" onclick="downloadAudio()">
+                    🎵 TTS 음성 다운로드
+                </button>
+                <button class="download-btn" onclick="downloadScenes()">
+                    📋 장면 데이터 다운로드
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentResult = null;
+
+        // 스타일 선택
+        function selectStyle(style) {
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.template-card').classList.add('selected');
+            document.getElementById('selectedStyle').value = style;
+        }
+
+        // 영상 길이 선택
+        function selectDuration(duration) {
+            document.querySelectorAll('.duration-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            event.target.closest('.duration-btn').classList.add('selected');
+            document.getElementById('selectedDuration').value = duration;
+        }
+
+        // 기본 선택
+        document.querySelector('.template-card').classList.add('selected');
+        document.querySelector('.duration-btn').classList.add('selected');
+
+        // 폼 제출
+        document.getElementById('videoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const topic = document.getElementById('topic').value;
+            const style = document.getElementById('selectedStyle').value;
+            const duration = parseInt(document.getElementById('selectedDuration').value);
+
+            // UI 업데이트
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('loadingBox').classList.add('active');
+            document.getElementById('resultBox').classList.remove('active');
+            document.getElementById('alertBox').innerHTML = '';
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ topic, style, duration })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentResult = data;
+                    showResult(data);
+                    showAlert('success', '✅ 비디오가 성공적으로 생성되었습니다!');
+                } else {
+                    showAlert('error', `❌ 오류: ${data.error}`);
+                }
+            } catch (error) {
+                showAlert('error', `❌ 네트워크 오류: ${error.message}`);
+            } finally {
+                document.getElementById('generateBtn').disabled = false;
+                document.getElementById('loadingBox').classList.remove('active');
+            }
+        });
+
+        function showResult(data) {
+            // 통계 업데이트
+            document.getElementById('statScenes').textContent = data.num_scenes;
+            document.getElementById('statDuration').textContent = data.duration + '초';
+            document.getElementById('statSize').textContent = Math.round(data.audio_size / 1024) + ' KB';
+
+            // 장면 목록
+            const sceneList = document.getElementById('sceneList');
+            sceneList.innerHTML = '';
+
+            data.scenes.forEach((scene, index) => {
+                const sceneCard = document.createElement('div');
+                sceneCard.className = 'scene-card';
+                sceneCard.innerHTML = `
+                    <div class="scene-header">
+                        <span class="scene-index">장면 ${index + 1}</span>
+                        <span class="scene-duration">⏱️ ${scene.duration}초</span>
+                    </div>
+                    <div class="scene-text">${scene.text}</div>
+                    <div class="scene-prompt">🎨 ${scene.prompt}</div>
+                `;
+                sceneList.appendChild(sceneCard);
+            });
+
+            document.getElementById('resultBox').classList.add('active');
+        }
+
+        function showAlert(type, message) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                alertBox.innerHTML = '';
+            }, 5000);
+        }
+
+        function downloadAudio() {
+            if (currentResult) {
+                const filename = currentResult.audio_file.split('/').pop();
+                window.location.href = `/api/download/audio/${filename}`;
+            }
+        }
+
+        function downloadScenes() {
+            if (currentResult) {
+                const filename = currentResult.scene_file.split('/').pop();
+                window.location.href = `/api/download/scenes/${filename}`;
+            }
+        }
+    </script>
+</body>
+</html>
