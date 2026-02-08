@@ -39,7 +39,8 @@ class VideoCreator:
         output_path: str,
         background_type: str = 'gradient',
         title_text: Optional[str] = None,
-        chart_image: Optional[str] = None
+        chart_image: Optional[str] = None,
+        show_disclaimer: bool = True
     ) -> bool:
         """
         Shorts 비디오 생성
@@ -51,6 +52,7 @@ class VideoCreator:
             background_type: 배경 타입 (gradient, image, video)
             title_text: 제목 텍스트
             chart_image: 차트 이미지 경로 (선택)
+            show_disclaimer: 투자 책임 문구 표시 여부 (기본: True)
         
         Returns:
             성공 여부
@@ -83,7 +85,13 @@ class VideoCreator:
             # 6. 자막 추가
             clips.extend(subtitles)
             
-            # 7. 합성
+            # 7. 투자 책임 문구 추가
+            disclaimer_enabled = self.video_config.get('disclaimer', {}).get('enabled', True)
+            if show_disclaimer and disclaimer_enabled:
+                disclaimer = self._create_disclaimer(duration)
+                clips.append(disclaimer)
+            
+            # 8. 합성
             final_video = CompositeVideoClip(clips, size=(self.width, self.height))
             final_video = final_video.set_audio(audio)
             final_video = final_video.set_duration(duration)
@@ -205,6 +213,43 @@ class VideoCreator:
         chart = fadein(chart, 0.5)
         
         return chart
+    
+    def _create_disclaimer(self, duration: float) -> TextClip:
+        """투자 책임 문구 생성 (하단 고정)"""
+        # config에서 설정 읽기
+        disclaimer_config = self.video_config.get('disclaimer', {})
+        
+        disclaimer_text = disclaimer_config.get(
+            'text',
+            "본 영상은 투자 참고용이며\n투자 책임은 본인에게 있습니다"
+        )
+        
+        fontsize = disclaimer_config.get('fontsize', 24)
+        color = disclaimer_config.get('color', '#cccccc')
+        bg_color = disclaimer_config.get('bg_color', 'rgba(0,0,0,0.7)')
+        margin = disclaimer_config.get('margin', 40)
+        
+        disclaimer = TextClip(
+            disclaimer_text,
+            fontsize=fontsize,
+            color=color,
+            font='NanumGothic-Bold',
+            method='caption',
+            size=(self.width - 80, None),
+            align='center',
+            bg_color=bg_color
+        )
+        
+        # 하단에 고정 배치
+        disclaimer = disclaimer.set_position(('center', self.height - disclaimer.h - margin))
+        disclaimer = disclaimer.set_duration(duration)
+        
+        # 처음과 끝에 페이드 효과
+        disclaimer = fadein(disclaimer, 0.5)
+        disclaimer = fadeout(disclaimer, 0.5)
+        
+        logger.info("투자 책임 문구 추가")
+        return disclaimer
     
     def create_thumbnail(self, text: str, output_path: str) -> bool:
         """썸네일 이미지 생성"""

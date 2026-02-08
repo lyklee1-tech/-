@@ -6,6 +6,16 @@ video:
   format: "mp4"
   codec: "libx264"
   audio_codec: "aac"
+  
+  # 투자 책임 문구 설정
+  disclaimer:
+    enabled: true  # 투자 책임 문구 표시 여부
+    text: "본 영상은 투자 참고용이며\n투자 책임은 본인에게 있습니다"
+    fontsize: 24
+    color: "#cccccc"
+    bg_color: "rgba(0,0,0,0.7)"
+    position: "bottom"  # bottom, top
+    margin: 40  # 하단에서 떨어진 픽셀
 
 # 스크립트 설정
 script:

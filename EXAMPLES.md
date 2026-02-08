@@ -268,13 +268,29 @@ creator.create_shorts_video(
 )
 ```
 
-### 예제 10: 커스텀 썸네일
+### 예제 10: 커스텀 썸네일과 투자 책임 문구
 
 ```python
 from src.video_generation.video_creator import VideoCreator
 from PIL import Image, ImageDraw, ImageFont
 
 creator = VideoCreator()
+
+# 투자 책임 문구 포함 비디오 생성 (기본: 활성화)
+creator.create_shorts_video(
+    audio_path='data/audio/btc_audio.mp3',
+    script_text='비트코인이 10% 급등했습니다...',
+    output_path='data/videos/btc_with_disclaimer.mp4',
+    show_disclaimer=True  # 투자 책임 문구 표시 (기본값)
+)
+
+# 투자 책임 문구 없이 생성
+creator.create_shorts_video(
+    audio_path='data/audio/news_audio.mp3',
+    script_text='오늘의 경제 뉴스입니다...',
+    output_path='data/videos/news_without_disclaimer.mp4',
+    show_disclaimer=False  # 투자 책임 문구 제거
+)
 
 # 간단한 썸네일
 creator.create_thumbnail(

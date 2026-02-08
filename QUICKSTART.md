@@ -169,6 +169,14 @@ video:
   duration: 60  # 초 (30-60 권장)
   resolution: "1080x1920"  # Shorts 최적
   fps: 30
+  
+  # 투자 책임 문구 설정
+  disclaimer:
+    enabled: true  # 투자 책임 문구 표시 여부
+    text: "본 영상은 투자 참고용이며\n투자 책임은 본인에게 있습니다"
+    fontsize: 24
+    color: "#cccccc"
+    margin: 40  # 하단에서 떨어진 거리
 ```
 
 ## 📊 생성 과정 모니터링
