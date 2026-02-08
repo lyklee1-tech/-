@@ -87,8 +87,22 @@ python -m src.data_collection.stock_api
 vi config/config.yaml
 # youtube.auto_upload: false
 
-# 실행
+# 기본 길이 (60초)로 실행
 python main.py --mode single
+
+# 20초 짧은 버전
+python main.py --mode single --duration 20
+
+# 2분 50초 긴 버전
+python main.py --mode single --duration 170
+
+# 프리셋 사용
+python main.py --mode single --preset quick      # 20초
+python main.py --mode single --preset short      # 30초
+python main.py --mode single --preset standard   # 60초 (기본)
+python main.py --mode single --preset detailed   # 90초
+python main.py --mode single --preset extended   # 120초
+python main.py --mode single --preset maximum    # 170초 (최대)
 ```
 
 생성된 파일 확인:
@@ -145,6 +159,43 @@ pkill -f scheduler.py
 ```
 
 ## 🎨 커스터마이징
+
+### 비디오 길이 선택
+유튜브 Shorts는 20초~170초(2분 50초) 범위를 지원합니다.
+
+#### 방법 1: 명령줄에서 직접 지정
+```bash
+# 20초 짧은 뉴스
+python main.py --mode single --duration 20
+
+# 90초 상세 분석
+python main.py --mode single --duration 90
+
+# 170초 최대 길이
+python main.py --mode single --duration 170
+```
+
+#### 방법 2: 프리셋 사용 (권장)
+```bash
+python main.py --mode single --preset quick      # 20초 - 빠른 뉴스
+python main.py --mode single --preset short      # 30초 - 짧은 정보
+python main.py --mode single --preset standard   # 60초 - 표준 (기본)
+python main.py --mode single --preset detailed   # 90초 - 상세 분석
+python main.py --mode single --preset extended   # 120초 - 확장 콘텐츠
+python main.py --mode single --preset maximum    # 170초 - 최대 길이
+```
+
+#### 방법 3: config 파일 수정
+```yaml
+# config/config.yaml
+video:
+  duration: 90  # 기본 길이를 90초로 변경
+```
+
+**💡 자동 조정 기능**
+- 스크립트 길이가 비디오 길이에 맞춰 자동 조정됩니다
+- 20초: 약 70자 / 60초: 약 210자 / 170초: 약 595자
+- 한국어 평균 말하기 속도(초당 3.5자)에 최적화
 
 ### 스크립트 스타일 변경
 `config/config.yaml`:

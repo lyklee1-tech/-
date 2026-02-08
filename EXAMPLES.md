@@ -4,11 +4,12 @@
 
 ## 📑 목차
 1. [기본 사용 예제](#기본-사용-예제)
-2. [고급 커스터마이징](#고급-커스터마이징)
-3. [데이터 수집 예제](#데이터-수집-예제)
-4. [스크립트 생성 예제](#스크립트-생성-예제)
-5. [비디오 제작 예제](#비디오-제작-예제)
-6. [배치 작업 예제](#배치-작업-예제)
+2. [비디오 길이 커스터마이징](#비디오-길이-커스터마이징)
+3. [고급 커스터마이징](#고급-커스터마이징)
+4. [데이터 수집 예제](#데이터-수집-예제)
+5. [스크립트 생성 예제](#스크립트-생성-예제)
+6. [비디오 제작 예제](#비디오-제작-예제)
+7. [배치 작업 예제](#배치-작업-예제)
 
 ---
 
@@ -81,9 +82,95 @@ if stories:
 
 ---
 
+## 비디오 길이 커스터마이징
+
+### 예제 3: 다양한 길이의 Shorts 생성
+
+```bash
+# 20초 빠른 뉴스 (출퇴근 시간용)
+python main.py --mode single --preset quick
+
+# 30초 짧은 정보
+python main.py --mode single --preset short
+
+# 60초 표준 길이 (가장 보편적)
+python main.py --mode single --preset standard
+
+# 90초 상세 분석 (깊이 있는 내용)
+python main.py --mode single --preset detailed
+
+# 120초 확장 콘텐츠 (종합 분석)
+python main.py --mode single --preset extended
+
+# 170초 최대 길이 (완전한 스토리)
+python main.py --mode single --preset maximum
+```
+
+### 예제 4: 프로그래밍으로 길이 지정
+
+```python
+from src.script_generation.gpt_script import ScriptGenerator
+
+generator = ScriptGenerator()
+
+# 20초 짧은 버전
+script_20s = generator.generate_script(
+    topic="비트코인 급등",
+    data={'price': 58500000, 'change': 10.5},
+    target_duration=20  # 20초
+)
+
+# 90초 상세 버전
+script_90s = generator.generate_script(
+    topic="비트코인 급등 심층 분석",
+    data={'price': 58500000, 'change': 10.5, 'volume': 1500000000},
+    target_duration=90  # 90초
+)
+
+# 170초 완전 분석 버전
+script_170s = generator.generate_script(
+    topic="비트코인 급등의 모든 것",
+    data={
+        'price': 58500000, 
+        'change': 10.5,
+        'volume': 1500000000,
+        'reasons': ['ETF 유입', '기관 매수', '반감기 임박']
+    },
+    target_duration=170  # 170초 (2분 50초)
+)
+
+print(f"20초 스크립트: {len(script_20s['script'])}자")
+print(f"90초 스크립트: {len(script_90s['script'])}자")
+print(f"170초 스크립트: {len(script_170s['script'])}자")
+```
+
+### 예제 5: 상황별 최적 길이
+
+```python
+# 뉴스 속보 - 20초 (빠른 전달)
+python main.py --preset quick --mode single
+
+# 시장 동향 - 30초 (핵심 요약)
+python main.py --preset short --mode single
+
+# 종목 분석 - 60초 (표준 분석)
+python main.py --preset standard --mode single
+
+# 심층 리포트 - 90초 (상세 분석)
+python main.py --preset detailed --mode single
+
+# 주간 리뷰 - 120초 (종합 정리)
+python main.py --preset extended --mode single
+
+# 특집 콘텐츠 - 170초 (완전한 스토리)
+python main.py --preset maximum --mode single
+```
+
+---
+
 ## 고급 커스터마이징
 
-### 예제 3: 특정 스타일의 스크립트 생성
+### 예제 6: 특정 스타일의 스크립트 생성
 
 ```python
 from src.script_generation.gpt_script import ScriptGenerator

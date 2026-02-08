@@ -312,11 +312,39 @@ def main():
                        help='자동 실행 간격 (시간, 기본값: 2)')
     parser.add_argument('--config', default='config/config.yaml',
                        help='설정 파일 경로')
+    parser.add_argument('--duration', type=int, choices=range(20, 171), metavar='20-170',
+                       help='비디오 길이 (초) - 20초~170초(2분50초) 사이 선택 가능')
+    parser.add_argument('--preset', choices=['quick', 'short', 'standard', 'detailed', 'extended', 'maximum'],
+                       help='비디오 길이 프리셋 (quick:20초, short:30초, standard:60초, detailed:90초, extended:120초, maximum:170초)')
     
     args = parser.parse_args()
     
+    # 비디오 길이 설정
+    if args.preset:
+        # 프리셋 사용
+        presets = {
+            'quick': 20,
+            'short': 30,
+            'standard': 60,
+            'detailed': 90,
+            'extended': 120,
+            'maximum': 170
+        }
+        duration = presets[args.preset]
+        logger.info(f"프리셋 '{args.preset}' 선택: {duration}초 비디오 생성")
+    elif args.duration:
+        duration = args.duration
+        logger.info(f"사용자 지정 길이: {duration}초 비디오 생성")
+    else:
+        duration = None  # config 기본값 사용
+    
     # 시스템 초기화
     automation = EconomicShortsAutomation(args.config)
+    
+    # duration을 config에 임시로 설정
+    if duration is not None:
+        automation.config['video']['duration'] = duration
+        logger.info(f"비디오 길이 설정: {duration}초")
     
     # 실행
     if args.mode == 'single':

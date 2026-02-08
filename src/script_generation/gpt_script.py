@@ -19,8 +19,45 @@ class ScriptGenerator:
         with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
             self.script_config = config['script']
+            self.video_config = config['video']
     
-    def generate_script(self, topic: str, data: Dict, style='경제사냥꾼') -> Dict:
+    def calculate_script_length(self, target_duration: int = None) -> tuple:
+        """
+        목표 비디오 길이에 맞는 스크립트 길이 계산
+        
+        Args:
+            target_duration: 목표 비디오 길이 (초). None이면 config에서 읽음
+        
+        Returns:
+            (min_length, max_length) 튜플
+        """
+        # 자동 조정이 활성화된 경우
+        if self.script_config.get('auto_adjust_length', True):
+            if target_duration is None:
+                target_duration = self.video_config.get('duration', 60)
+            
+            chars_per_second = self.script_config.get('chars_per_second', 3.5)
+            
+            # 여유분 10% 추가
+            min_chars = int(target_duration * chars_per_second * 0.9)
+            max_chars = int(target_duration * chars_per_second * 1.1)
+            
+            logger.info(f"목표 길이 {target_duration}초 → 스크립트 {min_chars}-{max_chars}자")
+            return min_chars, max_chars
+        else:
+            # 수동 설정 사용
+            return (
+                self.script_config.get('min_length', 150),
+                self.script_config.get('max_length', 200)
+            )
+    
+    def generate_script(
+        self, 
+        topic: str, 
+        data: Dict, 
+        style='경제사냥꾼',
+        target_duration: int = None
+    ) -> Dict:
         """
         주제와 데이터를 기반으로 Shorts 스크립트 생성
         
@@ -28,10 +65,17 @@ class ScriptGenerator:
             topic: 스크립트 주제 (예: "비트코인 급등")
             data: 관련 데이터 딕셔너리
             style: 스크립트 스타일
+            target_duration: 목표 비디오 길이 (초). None이면 config 기본값 사용
         
         Returns:
             생성된 스크립트 딕셔너리
         """
+        
+        # 목표 길이에 맞는 스크립트 길이 계산
+        min_length, max_length = self.calculate_script_length(target_duration)
+        
+        # 실제 목표 길이
+        actual_duration = target_duration or self.video_config.get('duration', 60)
         
         system_prompt = f"""
 당신은 '{style}' 채널의 전문 경제 콘텐츠 작가입니다.
@@ -41,12 +85,12 @@ class ScriptGenerator:
 - 톤앤매너: 전문적이면서도 친근하고 이해하기 쉽게
 - 특징: 충격적인 팩트, 구체적인 숫자, 명확한 인사이트
 
-# 스크립트 구조 (총 150-200자, 30-60초)
+# 스크립트 구조 (총 {min_length}-{max_length}자, 약 {actual_duration}초)
 1. HOOK (0-3초): 시청자의 관심을 확 끄는 질문이나 충격적인 팩트
-2. 핵심 내용 (3-30초): 주요 정보와 데이터 전달
-3. 데이터 설명 (30-45초): 구체적인 숫자와 차트 설명
-4. 인사이트 (45-55초): 이것이 의미하는 바
-5. CTA (55-60초): 구독/좋아요 유도
+2. 핵심 내용: 주요 정보와 데이터 전달
+3. 데이터 설명: 구체적인 숫자와 차트 설명
+4. 인사이트: 이것이 의미하는 바
+5. CTA (마지막 5초): 구독/좋아요 유도
 
 # 작성 규칙
 - 첫 문장은 반드시 질문형 또는 충격적인 숫자로 시작
@@ -65,16 +109,18 @@ class ScriptGenerator:
 {json.dumps(data, ensure_ascii=False, indent=2)}
 
 요구사항:
-- 정확히 {self.script_config['min_length']}-{self.script_config['max_length']}자 내외
+- 정확히 {min_length}-{max_length}자 내외 (목표 길이: {actual_duration}초)
 - 첫 3초 안에 시청자의 시선을 사로잡을 것
 - 구체적인 숫자와 팩트 포함
 - 마지막에 구독 유도 멘트 자연스럽게 포함
+- 비디오 길이가 {actual_duration}초이므로 그에 맞는 정보량 조절
 
 JSON 형식으로 다음과 같이 반환:
 {{
     "title": "영상 제목 (50자 이내)",
     "hook": "처음 3초 후킹 멘트",
-    "script": "전체 스크립트 (150-200자)",
+    "script": "전체 스크립트 ({min_length}-{max_length}자)",
+    "duration": {actual_duration},
     "key_points": ["강조할 포인트 1", "강조할 포인트 2", "강조할 포인트 3"],
     "hashtags": ["태그1", "태그2", "태그3", "태그4", "태그5"],
     "thumbnail_text": "썸네일에 들어갈 텍스트 (15자 이내)"
