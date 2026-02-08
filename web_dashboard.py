@@ -12,6 +12,7 @@ import subprocess
 from pathlib import Path
 from datetime import datetime
 from loguru import logger
+from werkzeug.utils import secure_filename
 
 # 트렌드 분석기 임포트
 sys.path.insert(0, str(Path(__file__).parent))
@@ -20,6 +21,14 @@ from src.character_manager import CharacterManager
 
 app = Flask(__name__)
 CORS(app)
+
+# 업로드 설정
+UPLOAD_FOLDER = Path('data/characters/images')
+UPLOAD_FOLDER.mkdir(parents=True, exist_ok=True)
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+app.config['UPLOAD_FOLDER'] = str(UPLOAD_FOLDER)
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB 제한
 
 # 트렌드 분석기 초기화
 trend_analyzer = TrendAnalyzer()
@@ -37,6 +46,12 @@ VIDEOS_DIR = DATA_DIR / 'videos'
 # 디렉토리 생성
 for dir_path in [DATA_DIR, AUDIO_DIR, SCENES_DIR, VIDEOS_DIR]:
     dir_path.mkdir(parents=True, exist_ok=True)
+
+
+def allowed_file(filename):
+    """허용된 파일 확장자 체크"""
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 # 스타일 템플릿 정의 (이미지와 동일)
@@ -298,12 +313,15 @@ def generate_video():
         aspect_ratio = data.get('aspect_ratio', '1:1')
         style = data.get('style', 'professional')
         voice = data.get('voice', 'male_young')
+        character_mode = data.get('character_mode', 'auto')
+        character_image = data.get('character_image')
         custom_script = data.get('script')
         
         if not topic:
             return jsonify({'success': False, 'error': '토픽을 입력해주세요!'}), 400
         
         logger.info(f"🎬 비디오 생성 시작: {topic} ({duration}초, {aspect_ratio}, {style} 스타일, {voice} 목소리)")
+        logger.info(f"👤 캐릭터 모드: {character_mode}, 이미지: {bool(character_image)}")
         
         # GenSpark AutoPilot 실행
         cmd = [
@@ -608,6 +626,86 @@ def get_character_stats(character_id):
         logger.error(f"❌ 캐릭터 통계 조회 오류: {e}")
         return jsonify({
             'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/characters/upload-image', methods=['POST'])
+def upload_character_image():
+    """
+    캐릭터 이미지 업로드
+    POST /api/characters/upload-image
+    Form Data:
+        - image: 이미지 파일
+        - character_id: 캐릭터 ID (선택)
+    """
+    try:
+        # 파일 체크
+        if 'image' not in request.files:
+            return jsonify({
+                'success': False,
+                'error': '이미지 파일이 없습니다'
+            }), 400
+        
+        file = request.files['image']
+        
+        if file.filename == '':
+            return jsonify({
+                'success': False,
+                'error': '파일이 선택되지 않았습니다'
+            }), 400
+        
+        if not allowed_file(file.filename):
+            return jsonify({
+                'success': False,
+                'error': '지원하지 않는 파일 형식입니다 (png, jpg, jpeg, gif, webp만 가능)'
+            }), 400
+        
+        # 파일 저장
+        filename = secure_filename(file.filename)
+        timestamp = int(datetime.now().timestamp() * 1000)
+        unique_filename = f"{timestamp}_{filename}"
+        
+        file_path = UPLOAD_FOLDER / unique_filename
+        file.save(str(file_path))
+        
+        # 이미지 정보
+        file_size = file_path.stat().st_size
+        
+        logger.info(f"✅ 캐릭터 이미지 업로드 완료: {unique_filename} ({file_size/1024:.1f} KB)")
+        
+        return jsonify({
+            'success': True,
+            'filename': unique_filename,
+            'file_path': str(file_path.relative_to(Path.cwd())),
+            'file_size': file_size,
+            'url': f'/api/characters/images/{unique_filename}'
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ 이미지 업로드 오류: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/characters/images/<filename>')
+def serve_character_image(filename):
+    """캐릭터 이미지 제공"""
+    try:
+        file_path = UPLOAD_FOLDER / filename
+        
+        if not file_path.exists():
+            return jsonify({
+                'error': '이미지를 찾을 수 없습니다'
+            }), 404
+        
+        return send_file(file_path, mimetype='image/jpeg')
+        
+    except Exception as e:
+        logger.error(f"❌ 이미지 제공 오류: {e}")
+        return jsonify({
             'error': str(e)
         }), 500
 

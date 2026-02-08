@@ -261,6 +261,109 @@
             color: #666;
         }
 
+        .character-section {
+            background: linear-gradient(135deg, #fff5f5 0%, #fff9f9 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px dashed #ff6b6b;
+        }
+
+        .character-upload-area {
+            border: 3px dashed #ccc;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            margin-bottom: 15px;
+        }
+
+        .character-upload-area:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .character-upload-area.dragging {
+            border-color: #667eea;
+            background: #e0e8ff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .character-preview {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .character-preview.show {
+            display: block;
+        }
+
+        .character-preview img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .character-info {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .remove-character-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .remove-character-btn:hover {
+            background: #cc0000;
+        }
+
+        .character-option-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .character-option-btn {
+            flex: 1;
+            padding: 12px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .character-option-btn:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .character-option-btn.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
         .duration-btn {
             padding: 15px;
             border: 2px solid #e0e0e0;
@@ -527,6 +630,49 @@
                         required
                     >
                 </div>
+
+                <!-- 👤 캐릭터 설정 -->
+                <div class="character-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <label style="margin-bottom: 0; font-size: 1.1em; color: #ff6b6b;">👤 캐릭터 설정 (선택)</label>
+                    </div>
+                    
+                    <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">
+                        캐릭터 이미지를 업로드하면 일관성 있게 사용됩니다. 업로드하지 않으면 AI가 자동 생성합니다.
+                    </p>
+
+                    <div class="character-option-group">
+                        <button type="button" class="character-option-btn active" onclick="selectCharacterMode('auto')">
+                            🤖 AI 자동 생성
+                        </button>
+                        <button type="button" class="character-option-btn" onclick="selectCharacterMode('upload')">
+                            📤 이미지 업로드
+                        </button>
+                    </div>
+
+                    <div id="characterUploadSection" style="display: none; margin-top: 15px;">
+                        <div class="character-upload-area" id="uploadArea">
+                            <div class="upload-icon">📷</div>
+                            <h3>캐릭터 이미지 업로드</h3>
+                            <p>클릭하거나 이미지를 드래그하세요</p>
+                            <p style="font-size: 0.8em; color: #999; margin-top: 10px;">
+                                지원 형식: PNG, JPG, JPEG, GIF, WEBP (최대 16MB)
+                            </p>
+                            <input type="file" id="characterImageInput" accept="image/*" style="display: none;">
+                        </div>
+
+                        <div class="character-preview" id="characterPreview">
+                            <img id="characterPreviewImage" alt="캐릭터 이미지">
+                            <div class="character-info" id="characterInfo"></div>
+                            <button type="button" class="remove-character-btn" onclick="removeCharacterImage()">
+                                🗑️ 이미지 제거
+                            </button>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="characterImagePath" value="">
+                    <input type="hidden" id="characterMode" value="auto">
+                </div>
             </div>
 
             <!-- 2단계: 화면 비율 -->
@@ -710,6 +856,121 @@
         document.querySelector('.template-card').classList.add('selected');
         document.querySelector('.duration-btn').classList.add('selected');
 
+        // ===== 캐릭터 업로드 기능 =====
+        let uploadedCharacterImage = null;
+
+        // 캐릭터 모드 선택
+        function selectCharacterMode(mode) {
+            document.querySelectorAll('.character-option-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            document.getElementById('characterMode').value = mode;
+            document.getElementById('characterUploadSection').style.display = mode === 'upload' ? 'block' : 'none';
+        }
+
+        // 업로드 영역 설정
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('characterImageInput');
+
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // 드래그 앤 드롭
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragging');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragging');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragging');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleCharacterImage(files[0]);
+            }
+        });
+
+        // 파일 선택
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleCharacterImage(e.target.files[0]);
+            }
+        });
+
+        // 이미지 처리
+        async function handleCharacterImage(file) {
+            // 파일 타입 체크
+            if (!file.type.startsWith('image/')) {
+                showAlert('error', '이미지 파일만 업로드 가능합니다');
+                return;
+            }
+
+            // 파일 크기 체크 (16MB)
+            if (file.size > 16 * 1024 * 1024) {
+                showAlert('error', '파일 크기는 16MB 이하여야 합니다');
+                return;
+            }
+
+            showAlert('info', '이미지 업로드 중...');
+
+            try {
+                // FormData 생성
+                const formData = new FormData();
+                formData.append('image', file);
+
+                // 업로드
+                const response = await fetch('/api/characters/upload-image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    uploadedCharacterImage = result;
+                    
+                    // 이미지 경로 저장
+                    document.getElementById('characterImagePath').value = result.file_path;
+                    
+                    // 미리보기 표시
+                    const preview = document.getElementById('characterPreview');
+                    const previewImg = document.getElementById('characterPreviewImage');
+                    const info = document.getElementById('characterInfo');
+                    
+                    previewImg.src = result.url;
+                    info.innerHTML = `
+                        <p><strong>파일명:</strong> ${result.filename}</p>
+                        <p><strong>크기:</strong> ${(result.file_size / 1024).toFixed(1)} KB</p>
+                    `;
+                    
+                    preview.classList.add('show');
+                    
+                    showAlert('success', '✅ 캐릭터 이미지 업로드 완료!');
+                } else {
+                    showAlert('error', `업로드 실패: ${result.error}`);
+                }
+            } catch (error) {
+                showAlert('error', `업로드 오류: ${error.message}`);
+            }
+        }
+
+        // 이미지 제거
+        function removeCharacterImage() {
+            uploadedCharacterImage = null;
+            document.getElementById('characterImagePath').value = '';
+            document.getElementById('characterPreview').classList.remove('show');
+            fileInput.value = '';
+            showAlert('info', '캐릭터 이미지가 제거되었습니다');
+        }
+
         // 폼 제출
         document.getElementById('videoForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -719,6 +980,8 @@
             const voice = document.getElementById('selectedVoice').value;
             const style = document.getElementById('selectedStyle').value;
             const duration = parseInt(document.getElementById('selectedDuration').value);
+            const characterMode = document.getElementById('characterMode').value;
+            const characterImagePath = document.getElementById('characterImagePath').value;
 
             // UI 업데이트
             document.getElementById('generateBtn').disabled = true;
@@ -727,12 +990,22 @@
             document.getElementById('alertBox').innerHTML = '';
 
             try {
+                const requestData = {
+                    topic,
+                    aspect_ratio: aspectRatio,
+                    voice,
+                    style,
+                    duration,
+                    character_mode: characterMode,
+                    character_image: characterImagePath || null
+                };
+
                 const response = await fetch('/api/generate', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ topic, aspect_ratio: aspectRatio, voice, style, duration })
+                    body: JSON.stringify(requestData)
                 });
 
                 const data = await response.json();

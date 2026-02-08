@@ -54,7 +54,8 @@ class CharacterManager:
                         character_name: str,
                         style: str = 'professional',
                         voice: str = 'male_young',
-                        appearance_prompt: Optional[str] = None) -> Dict:
+                        appearance_prompt: Optional[str] = None,
+                        character_image: Optional[str] = None) -> Dict:
         """
         새 캐릭터 생성
         
@@ -64,14 +65,19 @@ class CharacterManager:
             style: 비디오 스타일
             voice: 목소리 프리셋
             appearance_prompt: 외모 프롬프트 (GenSpark AI용)
+            character_image: 캐릭터 이미지 경로 (업로드된 경우)
         
         Returns:
             생성된 캐릭터 정보
         """
         character_id = f"{user_id}_{character_name}_{int(datetime.now().timestamp())}"
         
-        # 기본 외모 프롬프트 생성
-        if not appearance_prompt:
+        # 이미지가 있으면 이미지 기반, 없으면 텍스트 기반 프롬프트
+        if character_image:
+            # 이미지 기반 일관성
+            appearance_prompt = f"Character from reference image, maintaining exact appearance and features, {style} style"
+        elif not appearance_prompt:
+            # 기본 외모 프롬프트 생성
             appearance_prompt = self._generate_appearance_prompt(style, character_name)
         
         character_data = {
@@ -81,6 +87,7 @@ class CharacterManager:
             'style': style,
             'voice': voice,
             'appearance_prompt': appearance_prompt,
+            'character_image': character_image,  # 이미지 경로 저장
             'created_at': datetime.now().isoformat(),
             'last_used': datetime.now().isoformat(),
             'usage_count': 0,
@@ -90,7 +97,7 @@ class CharacterManager:
         self.characters[character_id] = character_data
         self._save_characters()
         
-        logger.info(f"새 캐릭터 생성: {character_name} (ID: {character_id})")
+        logger.info(f"새 캐릭터 생성: {character_name} (ID: {character_id}, 이미지: {bool(character_image)})")
         return character_data
     
     def get_character(self, character_id: str) -> Optional[Dict]:
