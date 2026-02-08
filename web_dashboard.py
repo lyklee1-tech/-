@@ -13,8 +13,15 @@ from pathlib import Path
 from datetime import datetime
 from loguru import logger
 
+# 트렌드 분석기 임포트
+sys.path.insert(0, str(Path(__file__).parent))
+from src.data_collection.trend_analyzer import TrendAnalyzer
+
 app = Flask(__name__)
 CORS(app)
+
+# 트렌드 분석기 초기화
+trend_analyzer = TrendAnalyzer()
 
 # 경로 설정
 BASE_DIR = Path(__file__).parent
@@ -272,6 +279,65 @@ def history():
             continue
     
     return jsonify({'history': history})
+
+
+@app.route('/api/trends')
+def get_trends():
+    """
+    🔥 실시간 트렌드 분석 API
+    GET /api/trends?hours=7
+    """
+    try:
+        hours = int(request.args.get('hours', 7))
+        logger.info(f"🔥 트렌드 분석 요청 (최근 {hours}시간)")
+        
+        # 트렌드 분석 실행
+        result = trend_analyzer.analyze_all_trends(hours=hours)
+        
+        return jsonify({
+            'success': True,
+            'data': result
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ 트렌드 분석 오류: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/trends/top')
+def get_top_trend():
+    """
+    🎯 가장 핫한 주제 1개 반환 (자동 선택용)
+    GET /api/trends/top?hours=7
+    """
+    try:
+        hours = int(request.args.get('hours', 7))
+        logger.info(f"🎯 TOP 트렌드 요청 (최근 {hours}시간)")
+        
+        # 최고 인기 주제 가져오기
+        top_topic = trend_analyzer.get_top_topic(hours=hours)
+        
+        if top_topic:
+            return jsonify({
+                'success': True,
+                'topic': top_topic,
+                'timestamp': datetime.now().isoformat()
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': '트렌드를 찾을 수 없습니다'
+            }), 404
+        
+    except Exception as e:
+        logger.error(f"❌ TOP 트렌드 오류: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 
 if __name__ == '__main__':
