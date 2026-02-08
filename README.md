@@ -27,7 +27,8 @@
 - 차트 및 그래프 시각화
 - 트렌디한 효과 적용
 - **투자 책임 문구 자동 삽입** (하단 고정 표시)
-- **배경음악 및 효과음** (AI 자동 생성 또는 라이브러리)
+- **배경음악 및 효과음** (로컬 파일 우선 사용, AI 자동 생성 지원)
+- **사용자 음악 파일 업로드** 지원 (`data/audio/bgm/`, `data/audio/sfx/`)
 
 ### 5. 📤 유튜브 자동 업로드
 - YouTube Data API v3 연동
@@ -109,6 +110,25 @@ YOUTUBE_CLIENT_SECRET=your_client_secret
 ALPHA_VANTAGE_API_KEY=your_alphavantage_key  # 주식 데이터
 NEWS_API_KEY=your_news_api_key                # 뉴스 데이터
 ```
+
+### 4. 음악 파일 업로드 (선택사항)
+
+배경음악(BGM)과 효과음(SFX)을 업로드하세요:
+
+```bash
+# 업로드 도우미 실행 (업로드 방법 안내)
+python upload_audio_helper.py
+```
+
+**Windows 로컬 파일 위치:**
+- `C:\Users\user\Desktop\economic_shorts\assets\audio\bgm\` → BGM 파일
+- `C:\Users\user\Desktop\economic_shorts\assets\audio\sfx\` → 효과음 파일
+
+**서버 대상 폴더:**
+- `data/audio/bgm/` → 배경음악
+- `data/audio/sfx/{intro,hook,key_point,chart_reveal,conclusion,cta,outro,events}/` → 효과음
+
+📖 **자세한 가이드**: [UPLOAD_AUDIO.md](UPLOAD_AUDIO.md) 참조
 
 ## 🎯 사용 방법
 
