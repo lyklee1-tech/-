@@ -2,6 +2,67 @@
 
 경제 뉴스와 데이터를 기반으로 유튜브 Shorts 비디오를 자동 생성하고 업로드하는 완전 자동화 시스템입니다.
 
+## 🌟 **새로운 기능!**
+
+### **🍌 Banana 모드 (20초 ~ 30분 영상)**
+- AI 이미지 자동 생성 (DALL-E 3)
+- 장면 자동 분할 및 루프
+- Ken Burns 모션 효과
+- AutoPilot 원클릭 자동화
+
+### **💰 GenSpark AI 통합 (완전 무료!)**
+- 무료 AI 이미지 생성
+- 무료 AI 비디오 생성
+- OpenAI 비용 $0 절감
+- [GenSpark AI 가이드 →](GENSPARK_AI_FREE.md)
+
+---
+
+## 🚀 **빠른 시작**
+
+### **1️⃣ 설치 (5분)**
+
+```bash
+# Git으로 다운로드
+git clone https://github.com/lyklee1-tech/-.git economic-shorts
+cd economic-shorts
+
+# 패키지 설치
+pip install -r requirements.txt
+
+# 환경 설정
+cp .env.example .env
+```
+
+### **2️⃣ 첫 비디오 생성 (1분)**
+
+```bash
+# GenSpark AI로 무료 생성!
+python genspark_autopilot.py --topic "비트코인 급등" --duration 20
+```
+
+### **3️⃣ 결과 확인 (30초)**
+
+```bash
+ls -lh data/audio/genspark_*.mp3
+cat data/scenes/genspark_scenes_*.json
+```
+
+**✅ 성공! 총 소요 시간: 6분 30초**
+
+---
+
+## 📚 **문서 가이드**
+
+| 문서 | 설명 | 링크 |
+|------|------|------|
+| 🚀 **설치 가이드** | 내 컴퓨터에서 실행하기 | [INSTALL.md](INSTALL.md) |
+| ⭐ **시작 가이드** | 5분 안에 시작하기 | [START_HERE.md](START_HERE.md) |
+| 🌟 **GenSpark AI** | 완전 무료 가이드 | [GENSPARK_AI_FREE.md](GENSPARK_AI_FREE.md) |
+| 🍌 **Banana 모드** | 20초~30분 영상 | [BANANA_MODE.md](BANANA_MODE.md) |
+
+---
+
 ## 🚀 주요 기능
 
 ### 1. 📊 데이터 수집
