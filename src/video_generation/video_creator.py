@@ -40,7 +40,8 @@ class VideoCreator:
         background_type: str = 'gradient',
         title_text: Optional[str] = None,
         chart_image: Optional[str] = None,
-        show_disclaimer: bool = True
+        show_disclaimer: bool = True,
+        add_sound_effects: bool = True
     ) -> bool:
         """
         Shorts 비디오 생성
@@ -53,14 +54,15 @@ class VideoCreator:
             title_text: 제목 텍스트
             chart_image: 차트 이미지 경로 (선택)
             show_disclaimer: 투자 책임 문구 표시 여부 (기본: True)
+            add_sound_effects: 효과음 및 배경음악 추가 여부 (기본: True)
         
         Returns:
             성공 여부
         """
         try:
-            # 1. 오디오 로드
-            audio = AudioFileClip(audio_path)
-            duration = audio.duration
+            # 1. 오디오 로드 (나레이션)
+            narration = AudioFileClip(audio_path)
+            duration = narration.duration
             
             logger.info(f"비디오 생성 시작 (길이: {duration:.2f}초)")
             
@@ -93,10 +95,19 @@ class VideoCreator:
             
             # 8. 합성
             final_video = CompositeVideoClip(clips, size=(self.width, self.height))
-            final_video = final_video.set_audio(audio)
+            
+            # 9. 오디오 믹싱 (나레이션 + 배경음악 + 효과음)
+            final_audio = self._mix_audio(
+                narration, 
+                duration, 
+                script_text, 
+                add_sound_effects
+            )
+            
+            final_video = final_video.set_audio(final_audio)
             final_video = final_video.set_duration(duration)
             
-            # 8. 출력
+            # 10. 출력
             Path(output_path).parent.mkdir(parents=True, exist_ok=True)
             
             final_video.write_videofile(
@@ -114,6 +125,85 @@ class VideoCreator:
         except Exception as e:
             logger.error(f"비디오 생성 실패: {e}")
             return False
+    
+    def _mix_audio(
+        self,
+        narration: AudioFileClip,
+        duration: float,
+        script_text: str,
+        add_sfx: bool = True
+    ) -> AudioFileClip:
+        """
+        나레이션, 배경음악, 효과음 믹싱
+        
+        Args:
+            narration: 나레이션 오디오
+            duration: 비디오 길이
+            script_text: 스크립트 (효과음 타이밍 판단용)
+            add_sfx: 효과음 추가 여부
+        
+        Returns:
+            믹싱된 최종 오디오
+        """
+        try:
+            from src.video_generation.sound_effects import SoundEffectManager
+            from moviepy.editor import CompositeAudioClip
+            
+            audio_clips = [narration]
+            
+            if not add_sfx:
+                return narration
+            
+            sfx_manager = SoundEffectManager()
+            
+            # 1. 배경음악 추가
+            bgm_path = sfx_manager.get_background_music(duration)
+            if bgm_path and os.path.exists(bgm_path):
+                bgm = AudioFileClip(bgm_path)
+                
+                # 길이 조정
+                if bgm.duration < duration:
+                    # 루프
+                    bgm = bgm.audio_loop(duration=duration)
+                elif bgm.duration > duration:
+                    # 자르기
+                    bgm = bgm.subclip(0, duration)
+                
+                # 볼륨 조정
+                bgm_config = self.video_config['audio']['background_music']
+                bgm = bgm.volumex(bgm_config['volume'])
+                
+                # 페이드 인/아웃
+                bgm = bgm.audio_fadein(bgm_config['fade_in'])
+                bgm = bgm.audio_fadeout(bgm_config['fade_out'])
+                
+                audio_clips.append(bgm)
+                logger.info("배경음악 추가 완료")
+            
+            # 2. 효과음 추가
+            sfx_timings = sfx_manager.get_script_sfx_timings(script_text, duration)
+            
+            for sfx_info in sfx_timings:
+                sfx = sfx_manager.get_sound_effect(
+                    sfx_info['effect'],
+                    sfx_info['timing']
+                )
+                
+                if sfx and os.path.exists(sfx['path']):
+                    sfx_clip = AudioFileClip(sfx['path'])
+                    sfx_clip = sfx_clip.volumex(sfx['volume'])
+                    sfx_clip = sfx_clip.set_start(sfx['timing'])
+                    audio_clips.append(sfx_clip)
+            
+            if len(audio_clips) > 1:
+                logger.info(f"오디오 믹싱: 나레이션 + BGM + {len(sfx_timings)}개 효과음")
+                return CompositeAudioClip(audio_clips)
+            else:
+                return narration
+                
+        except Exception as e:
+            logger.error(f"오디오 믹싱 실패: {e}, 나레이션만 사용")
+            return narration
     
     def _create_background(self, duration: float, bg_type: str = 'gradient') -> ColorClip:
         """배경 생성"""
