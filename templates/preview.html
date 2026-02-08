@@ -564,6 +564,21 @@
                     </div>
                 </div>
 
+                <!-- 자막 목록 관리 -->
+                <div class="panel-section">
+                    <h3>📋 자막 목록</h3>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <button class="btn btn-primary" onclick="addNewSubtitle()" style="width: 100%;">
+                            ➕ 새 자막 추가
+                        </button>
+                    </div>
+                    
+                    <div id="subtitleList" style="max-height: 400px; overflow-y: auto;">
+                        <!-- 자막들이 동적으로 추가됩니다 -->
+                    </div>
+                </div>
+
                 <!-- 장면 목록 -->
                 <div class="panel-section">
                     <h3>📝 장면 목록</h3>
@@ -838,9 +853,140 @@
             alert('🎬 최종 비디오 생성 기능은 곧 추가됩니다!');
         }
 
+        // ============================================================
+        // 자막 목록 관리 기능
+        // ============================================================
+        
+        let subtitleItems = [];
+        let nextSubtitleId = 1;
+        
+        // 새 자막 추가
+        function addNewSubtitle() {
+            const newSubtitle = {
+                id: nextSubtitleId++,
+                text: '',
+                startTime: 0,
+                endTime: 3,
+                ...currentSettings
+            };
+            
+            subtitleItems.push(newSubtitle);
+            renderSubtitleList();
+            autoSaveSubtitles();
+        }
+        
+        // 자막 목록 렌더링
+        function renderSubtitleList() {
+            const listEl = document.getElementById('subtitleList');
+            
+            if (subtitleItems.length === 0) {
+                listEl.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">추가된 자막이 없습니다</p>';
+                return;
+            }
+            
+            listEl.innerHTML = subtitleItems.map((sub, index) => `
+                <div style="background: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 2px solid #444;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                        <h4 style="margin: 0; color: #fff;">자막 #${index + 1}</h4>
+                        <button onclick="deleteSubtitle(${sub.id})" style="padding: 5px 10px; background: #e74c3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em;">
+                            🗑️ 삭제
+                        </button>
+                    </div>
+                    
+                    <div style="margin-bottom: 10px;">
+                        <label style="color: #ccc; font-size: 0.9em;">텍스트</label>
+                        <input type="text" value="${sub.text}" onchange="updateSubtitleText(${sub.id}, this.value)" 
+                            placeholder="자막 텍스트 입력..."
+                            style="width: 100%; padding: 8px; border-radius: 6px; background: #3a3a3a; color: white; border: 1px solid #555;">
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1;">
+                            <label style="color: #ccc; font-size: 0.9em;">시작 (초)</label>
+                            <input type="number" value="${sub.startTime}" min="0" step="0.1" 
+                                onchange="updateSubtitleTime(${sub.id}, 'start', parseFloat(this.value))"
+                                style="width: 100%; padding: 8px; border-radius: 6px; background: #3a3a3a; color: white; border: 1px solid #555;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="color: #ccc; font-size: 0.9em;">종료 (초)</label>
+                            <input type="number" value="${sub.endTime}" min="0" step="0.1" 
+                                onchange="updateSubtitleTime(${sub.id}, 'end', parseFloat(this.value))"
+                                style="width: 100%; padding: 8px; border-radius: 6px; background: #3a3a3a; color: white; border: 1px solid #555;">
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 10px; padding: 10px; background: #1a1a1a; border-radius: 6px;">
+                        <div style="color: white; font-size: ${sub.fontSize}px; font-family: ${sub.fontFamily}; font-weight: ${sub.fontWeight}; text-align: ${sub.align};">
+                            ${sub.text || '(미리보기)'}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 자막 텍스트 업데이트
+        function updateSubtitleText(id, text) {
+            const subtitle = subtitleItems.find(s => s.id === id);
+            if (subtitle) {
+                subtitle.text = text;
+                renderSubtitleList();
+                autoSaveSubtitles();
+            }
+        }
+        
+        // 자막 시간 업데이트
+        function updateSubtitleTime(id, type, value) {
+            const subtitle = subtitleItems.find(s => s.id === id);
+            if (subtitle) {
+                if (type === 'start') {
+                    subtitle.startTime = value;
+                } else {
+                    subtitle.endTime = value;
+                }
+                autoSaveSubtitles();
+            }
+        }
+        
+        // 자막 삭제
+        function deleteSubtitle(id) {
+            if (confirm('이 자막을 삭제하시겠습니까?')) {
+                subtitleItems = subtitleItems.filter(s => s.id !== id);
+                renderSubtitleList();
+                autoSaveSubtitles();
+            }
+        }
+        
+        // 자막 목록 자동 저장
+        function autoSaveSubtitles() {
+            try {
+                localStorage.setItem('subtitleItems', JSON.stringify(subtitleItems));
+                console.log('✅ 자막 목록 저장됨');
+            } catch (e) {
+                console.error('❌ 자막 저장 실패:', e);
+            }
+        }
+        
+        // 자막 목록 불러오기
+        function loadSubtitles() {
+            const saved = localStorage.getItem('subtitleItems');
+            if (saved) {
+                try {
+                    subtitleItems = JSON.parse(saved);
+                    if (subtitleItems.length > 0) {
+                        nextSubtitleId = Math.max(...subtitleItems.map(s => s.id)) + 1;
+                    }
+                    renderSubtitleList();
+                    console.log('✅ 자막 목록 불러옴:', subtitleItems.length, '개');
+                } catch (e) {
+                    console.error('❌ 자막 불러오기 실패:', e);
+                }
+            }
+        }
+
         // 페이지 로드 시 설정 복원
         window.addEventListener('DOMContentLoaded', () => {
             loadSettings();
+            loadSubtitles();  // 자막 목록도 불러오기
             
             // 저장된 설정이 있으면 복원, 없으면 기본 프리셋
             if (localStorage.getItem('subtitleSettings')) {
