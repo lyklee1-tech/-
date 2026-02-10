@@ -147,6 +147,223 @@
             margin-bottom: 30px;
         }
 
+        .aspect-ratio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .aspect-ratio-btn {
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            position: relative;
+        }
+
+        .aspect-ratio-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .aspect-ratio-btn.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+        }
+
+        .aspect-ratio-preview {
+            width: 80px;
+            margin: 0 auto 12px auto;
+            background: #f0f0f0;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            color: #999;
+            font-weight: bold;
+        }
+
+        .aspect-ratio-preview.ratio-1-1 {
+            height: 80px;
+        }
+
+        .aspect-ratio-preview.ratio-3-4 {
+            height: 107px;
+        }
+
+        .aspect-ratio-preview.ratio-9-16 {
+            height: 142px;
+        }
+
+        .aspect-ratio-preview.ratio-16-9 {
+            height: 45px;
+        }
+
+        .aspect-ratio-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .aspect-ratio-desc {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .voice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .voice-card {
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 18px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .voice-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .voice-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+        }
+
+        .voice-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .voice-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 1em;
+            margin-bottom: 5px;
+        }
+
+        .voice-desc {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .character-section {
+            background: linear-gradient(135deg, #fff5f5 0%, #fff9f9 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px dashed #ff6b6b;
+        }
+
+        .character-upload-area {
+            border: 3px dashed #ccc;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            margin-bottom: 15px;
+        }
+
+        .character-upload-area:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .character-upload-area.dragging {
+            border-color: #667eea;
+            background: #e0e8ff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .character-preview {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .character-preview.show {
+            display: block;
+        }
+
+        .character-preview img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .character-info {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .remove-character-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .remove-character-btn:hover {
+            background: #cc0000;
+        }
+
+        .character-option-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .character-option-btn {
+            flex: 1;
+            padding: 12px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .character-option-btn:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .character-option-btn.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
         .duration-btn {
             padding: 15px;
             border: 2px solid #e0e0e0;
@@ -356,6 +573,12 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
     </style>
 </head>
 <body>
@@ -363,7 +586,50 @@
         <div class="header">
             <h1>🎨 GenSpark AI 비디오 생성기</h1>
             <p>버튼 클릭 한 번으로 전문가급 비디오 자동 제작!</p>
-            <span class="badge">✨ 완전 무료 • 💰 비용 $0 • ⚡ 초고속</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                <span class="badge">✨ 완전 무료 • 💰 비용 $0 • ⚡ 초고속</span>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <button type="button" onclick="toggleSettings()" style="padding: 8px 16px; background: #6c5ce7; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s;">
+                        ⚙️ 설정
+                    </button>
+                    <span id="currentDateTime" style="font-size: 0.9em; color: #666; font-weight: bold;">📅 로딩 중...</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 설정 패널 (숨김 상태) -->
+        <div id="settingsPanel" style="display: none; margin: 20px 0; padding: 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); color: white;">
+            <h3 style="margin-top: 0; color: white;">⚙️ YouTube API 설정</h3>
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+                <p style="margin: 0 0 15px 0; font-size: 0.95em;">
+                    📺 YouTube 채널 스타일을 실시간으로 분석하려면 YouTube Data API v3 키가 필요합니다.
+                </p>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="youtubeApiKeyInput" placeholder="AIzaSyDxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" style="flex: 1; padding: 12px; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; font-size: 1em; background: rgba(255,255,255,0.9); color: #333;">
+                    <button type="button" onclick="saveYoutubeApiKey()" style="padding: 12px 24px; background: #00b894; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; white-space: nowrap; transition: all 0.3s;">
+                        💾 저장
+                    </button>
+                    <button type="button" onclick="testYoutubeApiKey()" style="padding: 12px 24px; background: #0984e3; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; white-space: nowrap; transition: all 0.3s;">
+                        🧪 테스트
+                    </button>
+                </div>
+                <div id="apiKeyStatus" style="margin-top: 10px; font-size: 0.9em;"></div>
+            </div>
+            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; font-size: 0.9em;">
+                <p style="margin: 0 0 10px 0; font-weight: bold;">📋 API 키 발급 방법:</p>
+                <ol style="margin: 0; padding-left: 20px;">
+                    <li>Google Cloud Console 접속: <a href="https://console.cloud.google.com/" target="_blank" style="color: #74b9ff; text-decoration: underline;">console.cloud.google.com</a></li>
+                    <li>"API 및 서비스" → "라이브러리" → "YouTube Data API v3" 활성화</li>
+                    <li>"사용자 인증 정보" → "API 키 만들기"</li>
+                    <li>생성된 API 키를 위 입력란에 붙여넣고 저장</li>
+                </ol>
+                <p style="margin: 10px 0 0 0; font-style: italic;">
+                    💡 API 키 없이도 샘플 데이터로 모든 기능을 사용할 수 있습니다!
+                </p>
+            </div>
+            <button type="button" onclick="toggleSettings()" style="width: 100%; margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                닫기
+            </button>
         </div>
 
         <!-- 알림 영역 -->
@@ -376,8 +642,32 @@
                     <span>1️⃣</span>
                     <span>비디오 주제</span>
                 </div>
+                
+                <!-- 🔥 실시간 트렌드 추천 -->
+                <div class="form-group" style="margin-bottom: 20px; padding: 20px; background: linear-gradient(135deg, #fff5f5 0%, #fff9f9 100%); border-radius: 12px; border: 2px dashed #ff6b6b;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div>
+                            <label style="margin-bottom: 0; font-size: 1.1em; color: #ff6b6b;">🔥 실시간 급상승 주제</label>
+                            <p id="trendUpdateTime" style="margin: 5px 0 0 0; font-size: 0.85em; color: #999;">업데이트 시간: 로딩 중...</p>
+                        </div>
+                        <button type="button" onclick="loadTrends()" style="padding: 8px 15px; background: #ff6b6b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em; font-weight: bold; transition: all 0.3s;" onmouseover="this.style.background='#ff5252'" onmouseout="this.style.background='#ff6b6b'">
+                            🔄 새로고침
+                        </button>
+                    </div>
+                    
+                    <div id="trendsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 15px;">
+                        <div style="text-align: center; padding: 20px; color: #999;">
+                            <p>로딩 중...</p>
+                        </div>
+                    </div>
+                    
+                    <button type="button" onclick="autoSelectTopic()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1em; transition: all 0.3s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                        ⚡ 자동으로 가장 핫한 주제 선택하기
+                    </button>
+                </div>
+                
                 <div class="form-group">
-                    <label for="topic">무엇에 대한 비디오를 만들까요?</label>
+                    <label for="topic">또는 직접 입력하기</label>
                     <input 
                         type="text" 
                         id="topic" 
@@ -388,30 +678,60 @@
                 </div>
             </div>
 
-            <!-- 2단계: 스타일 선택 -->
+            <div class="section">
+                <!-- 👤 캐릭터 설정 -->
+                <div class="character-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <label style="margin-bottom: 0; font-size: 1.1em; color: #ff6b6b;">👤 캐릭터 설정 (선택)</label>
+                    </div>
+                    
+                    <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">
+                        캐릭터 이미지를 업로드하면 일관성 있게 사용됩니다. 업로드하지 않으면 AI가 자동 생성합니다.
+                    </p>
+
+                    <div class="character-option-group">
+                        <button type="button" class="character-option-btn active" onclick="selectCharacterMode('auto')">
+                            🤖 AI 자동 생성
+                        </button>
+                        <button type="button" class="character-option-btn" onclick="selectCharacterMode('upload')">
+                            📤 이미지 업로드
+                        </button>
+                    </div>
+
+                    <div id="characterUploadSection" style="display: none; margin-top: 15px;">
+                        <div class="character-upload-area" id="uploadArea">
+                            <div class="upload-icon">📷</div>
+                            <h3>캐릭터 이미지 업로드</h3>
+                            <p>클릭하거나 이미지를 드래그하세요</p>
+                            <p style="font-size: 0.8em; color: #999; margin-top: 10px;">
+                                지원 형식: PNG, JPG, JPEG, GIF, WEBP (최대 16MB)
+                            </p>
+                            <input type="file" id="characterImageInput" accept="image/*" style="display: none;">
+                        </div>
+
+                        <div class="character-preview" id="characterPreview">
+                            <img id="characterPreviewImage" alt="캐릭터 이미지">
+                            <div class="character-info" id="characterInfo"></div>
+                            <button type="button" class="remove-character-btn" onclick="removeCharacterImage()">
+                                🗑️ 이미지 제거
+                            </button>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="characterImagePath" value="">
+                    <input type="hidden" id="characterMode" value="auto">
+                </div>
+            </div>
+
+            <!-- 2단계: 영상 길이 -->
             <div class="section">
                 <div class="section-title">
                     <span>2️⃣</span>
-                    <span>비디오 스타일</span>
+                    <span>영상 길이 선택</span>
                 </div>
-                <div class="template-grid" id="styleGrid">
-                    {% for key, style in styles.items() %}
-                    <div class="template-card" data-style="{{ key }}" onclick="selectStyle('{{ key }}')">
-                        <div class="template-icon">{{ style.icon }}</div>
-                        <div class="template-name">{{ style.name }}</div>
-                        <div class="template-desc">{{ style.description }}</div>
-                    </div>
-                    {% endfor %}
-                </div>
-                <input type="hidden" id="selectedStyle" name="style" value="professional">
-            </div>
-
-            <!-- 3단계: 영상 길이 -->
-            <div class="section">
-                <div class="section-title">
-                    <span>3️⃣</span>
-                    <span>영상 길이</span>
-                </div>
+                <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">
+                    ⚡ 먼저 영상 길이를 선택하면 대본이 자동으로 맞춰집니다!
+                </p>
                 <div class="duration-grid" id="durationGrid">
                     {% for key, preset in durations.items() %}
                     <div class="duration-btn" data-duration="{{ preset.value }}" onclick="selectDuration({{ preset.value }})">
@@ -423,7 +743,199 @@
                 <input type="hidden" id="selectedDuration" name="duration" value="20">
             </div>
 
-            <!-- 4단계: 생성 버튼 -->
+            <!-- 3단계: 대본 관리 -->
+            <div class="section">
+                <div class="section-title">
+                    <span>3️⃣</span>
+                    <span>대본 관리</span>
+                </div>
+                
+                <div style="background: #fff9e6; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+                    <p style="margin: 0; font-size: 0.9em; color: #856404;">
+                        💡 <strong>팁:</strong> 위에서 선택한 <strong>영상 길이에 맞춰</strong> 대본이 자동으로 생성됩니다!
+                    </p>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button type="button" onclick="generateScript()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                        🤖 AI 대본 자동 생성
+                    </button>
+                    <button type="button" onclick="showStyleLearning()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                        🎓 스타일 학습
+                    </button>
+                    <button type="button" onclick="showScriptUpload()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                        📤 파일 업로드
+                    </button>
+                </div>
+
+                <!-- 스타일 학습 영역 -->
+                <div id="styleLearningArea" style="display: none; margin-bottom: 15px; padding: 15px; background: #f0f4ff; border-radius: 8px; border: 2px solid #667eea;">
+                    <h4 style="margin: 0 0 10px 0; color: #667eea;">🎓 YouTube 채널 스타일 학습</h4>
+                    <p style="font-size: 0.9em; color: #666; margin-bottom: 10px;">
+                        YouTube 채널 URL을 입력하면 해당 채널의 영상 스타일을 분석하여 비슷한 대본을 생성합니다.
+                    </p>
+                    <input type="text" id="youtubeChannelUrl" placeholder="예: https://www.youtube.com/@경제사냥꾼" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 10px;">
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" onclick="learnChannelStyle()" style="flex: 1; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                            🔍 스타일 분석 시작
+                        </button>
+                        <button type="button" onclick="cancelStyleLearning()" style="padding: 10px 20px; background: #999; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                            취소
+                        </button>
+                    </div>
+                    
+                    <!-- 분석 결과 -->
+                    <div id="styleAnalysisResult" style="display: none; margin-top: 15px; padding: 15px; background: white; border-radius: 6px; border: 1px solid #ddd;">
+                        <h5 style="margin: 0 0 10px 0; color: #333;">📊 분석 결과</h5>
+                        <div id="styleAnalysisContent"></div>
+                        <button type="button" onclick="generateScriptWithStyle()" style="margin-top: 10px; padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%;">
+                            ✨ 이 스타일로 대본 생성
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 대본 업로드 영역 -->
+                <div id="scriptUploadArea" style="display: none; margin-bottom: 15px;">
+                    <input type="file" id="scriptFileInput" accept=".txt" style="margin-bottom: 10px;">
+                    <button type="button" onclick="uploadScriptFile()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        업로드
+                    </button>
+                    <button type="button" onclick="cancelScriptUpload()" style="padding: 10px 20px; background: #999; color: white; border: none; border-radius: 6px; cursor: pointer; margin-left: 10px;">
+                        취소
+                    </button>
+                </div>
+
+                <!-- 대본 에디터 -->
+                <div id="scriptEditor" style="display: none; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <label style="font-weight: bold;">✍️ 대본 내용</label>
+                        <div>
+                            <button type="button" onclick="saveScript()" style="padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; margin-right: 5px;">
+                                💾 저장
+                            </button>
+                            <button type="button" onclick="closeScriptEditor()" style="padding: 8px 15px; background: #999; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                닫기
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="scriptContent" rows="10" style="width: 100%; padding: 15px; border-radius: 8px; border: 2px solid #ddd; font-size: 14px; line-height: 1.6; resize: vertical;" placeholder="대본을 입력하세요..."></textarea>
+                    <div style="margin-top: 10px; color: #666; font-size: 0.9em;">
+                        💡 팁: 문장 끝에 줄바꿈을 넣으면 자막 구분이 더 명확합니다.
+                    </div>
+                </div>
+
+                <!-- 저장된 대본 목록 -->
+                <div id="scriptList" style="max-height: 300px; overflow-y: auto;">
+                    <p style="text-align: center; color: #999; padding: 20px;">
+                        저장된 대본이 없습니다
+                    </p>
+                </div>
+            </div>
+
+            <!-- 4단계: 화면 비율 -->
+            <div class="section">
+                <div class="section-title">
+                    <span>4️⃣</span>
+                    <span>화면 비율</span>
+                </div>
+                <div class="aspect-ratio-grid" id="aspectRatioGrid">
+                    <div class="aspect-ratio-btn selected" data-ratio="1:1" onclick="selectAspectRatio('1:1')">
+                        <div class="aspect-ratio-preview ratio-1-1">1:1</div>
+                        <div class="aspect-ratio-name">정사각형</div>
+                        <div class="aspect-ratio-desc">Instagram</div>
+                    </div>
+                    <div class="aspect-ratio-btn" data-ratio="3:4" onclick="selectAspectRatio('3:4')">
+                        <div class="aspect-ratio-preview ratio-3-4">3:4</div>
+                        <div class="aspect-ratio-name">세로형</div>
+                        <div class="aspect-ratio-desc">Portrait</div>
+                    </div>
+                    <div class="aspect-ratio-btn" data-ratio="9:16" onclick="selectAspectRatio('9:16')">
+                        <div class="aspect-ratio-preview ratio-9-16">9:16</div>
+                        <div class="aspect-ratio-name">모바일 세로</div>
+                        <div class="aspect-ratio-desc">TikTok, Shorts</div>
+                    </div>
+                    <div class="aspect-ratio-btn" data-ratio="16:9" onclick="selectAspectRatio('16:9')">
+                        <div class="aspect-ratio-preview ratio-16-9">16:9</div>
+                        <div class="aspect-ratio-name">가로형</div>
+                        <div class="aspect-ratio-desc">YouTube, TV</div>
+                    </div>
+                </div>
+                <input type="hidden" id="selectedAspectRatio" name="aspect_ratio" value="1:1">
+            </div>
+
+            <!-- 5단계: 목소리 선택 -->
+            <div class="section">
+                <div class="section-title">
+                    <span>5️⃣</span>
+                    <span>더빙 목소리</span>
+                </div>
+                <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #2196F3;">
+                    <p style="margin: 0; color: #1565C0; font-size: 0.95em;">
+                        🎙️ <strong>목소리 선택 가이드:</strong> 각 목소리는 <strong>완전히 다른 TTS 설정</strong>을 사용합니다.<br>
+                        • 남성 (젊은): 밝고 에너지 넘치는 톤 (pitch: 0, speed: 1.0)<br>
+                        • 남성 (성숙한): 차분하고 신뢰감 있는 톤 (pitch: -2, speed: 0.95)<br>
+                        • 여성 (젊은): 친근하고 활발한 톤 (pitch: +2, speed: 1.05)<br>
+                        • 여성 (전문가): 정확하고 명료한 톤 (pitch: 0, speed: 1.0)<br>
+                        • 뉴스 앵커: 뉴스 진행자 스타일 (pitch: 0, speed: 0.9)<br>
+                        • 유튜버: 생동감 있고 재미있는 톤 (pitch: +1, speed: 1.1)<br>
+                        💡 <em>미리듣기 버튼으로 실제 목소리를 확인하세요!</em>
+                    </p>
+                </div>
+                <div class="voice-grid" id="voiceGrid">
+                    {% for key, voice in voices.items() %}
+                    <div class="voice-card" data-voice="{{ key }}" onclick="selectVoice('{{ key }}')">
+                        <div class="voice-icon">{{ voice.icon }}</div>
+                        <div class="voice-name">{{ voice.name }}</div>
+                        <div class="voice-desc">{{ voice.description }}</div>
+                        <button type="button" onclick="event.stopPropagation(); previewVoice('{{ key }}', '{{ voice.name }}')" style="margin-top: 10px; padding: 8px 12px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em; width: 100%; transition: all 0.3s;" onmouseover="this.style.background='#45a049'" onmouseout="this.style.background='#4CAF50'">
+                            🔊 미리듣기
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" id="selectedVoice" name="voice" value="male_young">
+                
+                <!-- TTS 미리듣기 플레이어 -->
+                <div id="voicePreviewPlayer" style="display: none; margin-top: 15px; padding: 15px; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 8px; border: 2px solid #4CAF50;">
+                    <p style="margin: 0 0 10px 0; font-weight: bold; color: #2e7d32;">🔊 미리듣기 재생 중...</p>
+                    <audio id="voicePreviewAudio" controls style="width: 100%;"></audio>
+                </div>
+            </div>
+
+            <!-- 6단계: 스타일 선택 -->
+            <div class="section">
+                <div class="section-title">
+                    <span>6️⃣</span>
+                    <span>비디오 스타일</span>
+                </div>
+                <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea;">
+                    <p style="margin: 0; color: #495057; font-size: 0.95em;">
+                        💡 <strong>스타일 선택 가이드:</strong> 각 스타일은 이미지 생성에 <strong>완전히 다른 프롬프트</strong>를 적용합니다.<br>
+                        • 프로페셔널: 비즈니스/기업 스타일 (깔끔한 스튜디오 조명)<br>
+                        • 일본 애니메이션: 만화/애니메이션 스타일 (밝은 색상, 표현력 있는 캐릭터)<br>
+                        • 시네마틱: 영화 같은 스타일 (드라마틱한 조명, 영화 필름 느낌)<br>
+                        • 3D 렌더링: CGI 그래픽 스타일 (광택 표면, 레이 트레이싱)<br>
+                        • 다큐멘터리: 실사 사진 스타일 (자연스러운 조명, 리얼리즘)
+                    </p>
+                </div>
+                <div class="template-grid" id="styleGrid">
+                    {% for key, style in styles.items() %}
+                    <div class="template-card" data-style="{{ key }}" onclick="selectStyle('{{ key }}')">
+                        <div class="template-icon">{{ style.icon }}</div>
+                        <div class="template-name">{{ style.name }}</div>
+                        <div class="template-desc">{{ style.description }}</div>
+                        {% if style.keywords %}
+                        <div style="font-size: 0.75em; color: #999; margin-top: 5px;">
+                            🔑 {{ ', '.join(style.keywords[:3]) }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" id="selectedStyle" name="style" value="professional">
+            </div>
+
+            <!-- 7단계: 생성 버튼 -->
             <button type="submit" class="generate-btn" id="generateBtn">
                 🚀 비디오 생성하기 (완전 무료!)
             </button>
@@ -468,12 +980,33 @@
                 <button class="download-btn" onclick="downloadScenes()">
                     📋 장면 데이터 다운로드
                 </button>
+                <button class="download-btn" onclick="goToPreview()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    🎬 프리뷰 & 편집하기
+                </button>
             </div>
         </div>
     </div>
 
     <script>
         let currentResult = null;
+
+        // 화면 비율 선택
+        function selectAspectRatio(ratio) {
+            document.querySelectorAll('.aspect-ratio-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            event.target.closest('.aspect-ratio-btn').classList.add('selected');
+            document.getElementById('selectedAspectRatio').value = ratio;
+        }
+
+        // 목소리 선택
+        function selectVoice(voice) {
+            document.querySelectorAll('.voice-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.voice-card').classList.add('selected');
+            document.getElementById('selectedVoice').value = voice;
+        }
 
         // 스타일 선택
         function selectStyle(style) {
@@ -494,16 +1027,137 @@
         }
 
         // 기본 선택
+        document.querySelector('.aspect-ratio-btn').classList.add('selected');
+        document.querySelector('.voice-card').classList.add('selected');
         document.querySelector('.template-card').classList.add('selected');
         document.querySelector('.duration-btn').classList.add('selected');
+
+        // ===== 캐릭터 업로드 기능 =====
+        let uploadedCharacterImage = null;
+
+        // 캐릭터 모드 선택
+        function selectCharacterMode(mode) {
+            document.querySelectorAll('.character-option-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            document.getElementById('characterMode').value = mode;
+            document.getElementById('characterUploadSection').style.display = mode === 'upload' ? 'block' : 'none';
+        }
+
+        // 업로드 영역 설정
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('characterImageInput');
+
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // 드래그 앤 드롭
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragging');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragging');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragging');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleCharacterImage(files[0]);
+            }
+        });
+
+        // 파일 선택
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleCharacterImage(e.target.files[0]);
+            }
+        });
+
+        // 이미지 처리
+        async function handleCharacterImage(file) {
+            // 파일 타입 체크
+            if (!file.type.startsWith('image/')) {
+                showAlert('error', '이미지 파일만 업로드 가능합니다');
+                return;
+            }
+
+            // 파일 크기 체크 (16MB)
+            if (file.size > 16 * 1024 * 1024) {
+                showAlert('error', '파일 크기는 16MB 이하여야 합니다');
+                return;
+            }
+
+            showAlert('info', '이미지 업로드 중...');
+
+            try {
+                // FormData 생성
+                const formData = new FormData();
+                formData.append('image', file);
+
+                // 업로드
+                const response = await fetch('/api/characters/upload-image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    uploadedCharacterImage = result;
+                    
+                    // 이미지 경로 저장
+                    document.getElementById('characterImagePath').value = result.file_path;
+                    
+                    // 미리보기 표시
+                    const preview = document.getElementById('characterPreview');
+                    const previewImg = document.getElementById('characterPreviewImage');
+                    const info = document.getElementById('characterInfo');
+                    
+                    previewImg.src = result.url;
+                    info.innerHTML = `
+                        <p><strong>파일명:</strong> ${result.filename}</p>
+                        <p><strong>크기:</strong> ${(result.file_size / 1024).toFixed(1)} KB</p>
+                    `;
+                    
+                    preview.classList.add('show');
+                    
+                    showAlert('success', '✅ 캐릭터 이미지 업로드 완료!');
+                } else {
+                    showAlert('error', `업로드 실패: ${result.error}`);
+                }
+            } catch (error) {
+                showAlert('error', `업로드 오류: ${error.message}`);
+            }
+        }
+
+        // 이미지 제거
+        function removeCharacterImage() {
+            uploadedCharacterImage = null;
+            document.getElementById('characterImagePath').value = '';
+            document.getElementById('characterPreview').classList.remove('show');
+            fileInput.value = '';
+            showAlert('info', '캐릭터 이미지가 제거되었습니다');
+        }
 
         // 폼 제출
         document.getElementById('videoForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const topic = document.getElementById('topic').value;
+            const aspectRatio = document.getElementById('selectedAspectRatio').value;
+            const voice = document.getElementById('selectedVoice').value;
             const style = document.getElementById('selectedStyle').value;
             const duration = parseInt(document.getElementById('selectedDuration').value);
+            const characterMode = document.getElementById('characterMode').value;
+            const characterImagePath = document.getElementById('characterImagePath').value;
 
             // UI 업데이트
             document.getElementById('generateBtn').disabled = true;
@@ -512,12 +1166,22 @@
             document.getElementById('alertBox').innerHTML = '';
 
             try {
+                const requestData = {
+                    topic,
+                    aspect_ratio: aspectRatio,
+                    voice,
+                    style,
+                    duration,
+                    character_mode: characterMode,
+                    character_image: characterImagePath || null
+                };
+
                 const response = await fetch('/api/generate', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ topic, style, duration })
+                    body: JSON.stringify(requestData)
                 });
 
                 const data = await response.json();
@@ -572,6 +1236,622 @@
             }, 5000);
         }
 
+        // ⚙️ 설정 패널 토글
+        function toggleSettings() {
+            const settingsPanel = document.getElementById('settingsPanel');
+            if (settingsPanel.style.display === 'none') {
+                settingsPanel.style.display = 'block';
+                // 저장된 API 키 로드
+                const savedKey = localStorage.getItem('youtube_api_key');
+                if (savedKey) {
+                    document.getElementById('youtubeApiKeyInput').value = savedKey;
+                }
+            } else {
+                settingsPanel.style.display = 'none';
+            }
+        }
+
+        // 💾 YouTube API 키 저장
+        async function saveYoutubeApiKey() {
+            const apiKey = document.getElementById('youtubeApiKeyInput').value.trim();
+            const statusDiv = document.getElementById('apiKeyStatus');
+            
+            if (!apiKey) {
+                statusDiv.innerHTML = '❌ API 키를 입력해주세요.';
+                statusDiv.style.color = '#ff6b6b';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/save-youtube-key', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ api_key: apiKey })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    localStorage.setItem('youtube_api_key', apiKey);
+                    statusDiv.innerHTML = '✅ API 키가 저장되었습니다!';
+                    statusDiv.style.color = '#00b894';
+                    showAlert('success', '✅ YouTube API 키가 저장되었습니다!');
+                } else {
+                    statusDiv.innerHTML = `❌ ${result.error}`;
+                    statusDiv.style.color = '#ff6b6b';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '❌ 저장 중 오류가 발생했습니다.';
+                statusDiv.style.color = '#ff6b6b';
+                console.error('API 키 저장 오류:', error);
+            }
+        }
+
+        // 🧪 YouTube API 키 테스트
+        async function testYoutubeApiKey() {
+            const apiKey = document.getElementById('youtubeApiKeyInput').value.trim();
+            const statusDiv = document.getElementById('apiKeyStatus');
+            
+            if (!apiKey) {
+                statusDiv.innerHTML = '❌ API 키를 입력해주세요.';
+                statusDiv.style.color = '#ff6b6b';
+                return;
+            }
+            
+            statusDiv.innerHTML = '🔍 API 키 테스트 중...';
+            statusDiv.style.color = '#0984e3';
+            
+            try {
+                const response = await fetch('/api/test-youtube-key', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ api_key: apiKey })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    statusDiv.innerHTML = `✅ API 키가 유효합니다! (테스트 검색: ${result.test_result})`;
+                    statusDiv.style.color = '#00b894';
+                    showAlert('success', '✅ YouTube API 키가 정상적으로 작동합니다!');
+                } else {
+                    statusDiv.innerHTML = `❌ ${result.error}`;
+                    statusDiv.style.color = '#ff6b6b';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '❌ 테스트 중 오류가 발생했습니다.';
+                statusDiv.style.color = '#ff6b6b';
+                console.error('API 키 테스트 오류:', error);
+            }
+        }
+
+        // 🔥 트렌드 로딩 함수
+        async function loadTrends() {
+            const trendsList = document.getElementById('trendsList');
+            trendsList.innerHTML = '<div style="text-align: center; padding: 20px; color: #999;"><p>🔍 트렌드 분석 중...</p></div>';
+            
+            // 업데이트 시간 표시
+            const now = new Date();
+            const timeString = `${now.getFullYear()}년 ${String(now.getMonth() + 1).padStart(2, '0')}월 ${String(now.getDate()).padStart(2, '0')}일 ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            document.getElementById('trendUpdateTime').textContent = `업데이트: ${timeString} (최근 7시간 분석)`;
+            
+            try {
+                const response = await fetch('/api/trends?hours=7');
+                const result = await response.json();
+                
+                if (result.success && result.data.recommendations.length > 0) {
+                    trendsList.innerHTML = '';
+                    
+                    result.data.recommendations.slice(0, 6).forEach((trend, index) => {
+                        const trendCard = document.createElement('div');
+                        trendCard.className = 'trend-card';
+                        trendCard.style.cssText = 'border: 2px solid #e0e0e0; border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s; background: white;';
+                        trendCard.innerHTML = `
+                            <div style="font-size: 1.5em; margin-bottom: 8px;">${index === 0 ? '🔥' : index === 1 ? '⚡' : '💡'}</div>
+                            <div style="font-weight: bold; color: #333; margin-bottom: 5px; font-size: 0.95em;">${trend.keyword}</div>
+                            <div style="font-size: 0.8em; color: #999;">${trend.source}</div>
+                            <div style="font-size: 0.75em; color: #667eea; margin-top: 5px;">점수: ${trend.score}</div>
+                        `;
+                        
+                        trendCard.addEventListener('click', () => {
+                            document.getElementById('topic').value = trend.keyword;
+                            showAlert('success', `✅ "${trend.keyword}" 선택됨!`);
+                        });
+                        
+                        trendCard.addEventListener('mouseenter', () => {
+                            trendCard.style.transform = 'translateY(-3px)';
+                            trendCard.style.borderColor = '#667eea';
+                            trendCard.style.boxShadow = '0 5px 15px rgba(102, 126, 234, 0.3)';
+                        });
+                        
+                        trendCard.addEventListener('mouseleave', () => {
+                            trendCard.style.transform = 'translateY(0)';
+                            trendCard.style.borderColor = '#e0e0e0';
+                            trendCard.style.boxShadow = 'none';
+                        });
+                        
+                        trendsList.appendChild(trendCard);
+                    });
+                } else {
+                    trendsList.innerHTML = '<div style="text-align: center; padding: 20px; color: #999;"><p>트렌드를 찾을 수 없습니다</p></div>';
+                }
+            } catch (error) {
+                trendsList.innerHTML = '<div style="text-align: center; padding: 20px; color: #f44336;"><p>❌ 트렌드 로딩 실패</p></div>';
+                console.error('Trend loading error:', error);
+            }
+        }
+        
+        // ⚡ 자동 주제 선택
+        async function autoSelectTopic() {
+            try {
+                showAlert('info', '🔍 가장 핫한 주제를 찾는 중...');
+                
+                const response = await fetch('/api/trends/top?hours=7');
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('topic').value = result.topic;
+                    showAlert('success', `🔥 자동 선택 완료: "${result.topic}"`);
+                } else {
+                    showAlert('error', '❌ 자동 선택 실패');
+                }
+            } catch (error) {
+                showAlert('error', '❌ 네트워크 오류');
+                console.error('Auto select error:', error);
+            }
+        }
+        
+        // ============================================================
+        // 대본 관리 함수들
+        // ============================================================
+        
+        let currentScripts = [];
+        
+        // 대본 목록 로드
+        async function loadScripts() {
+            try {
+                const response = await fetch('/api/scripts');
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentScripts = data.scripts;
+                    renderScriptList();
+                }
+            } catch (error) {
+                console.error('대본 로드 오류:', error);
+            }
+        }
+        
+        // 대본 목록 렌더링
+        function renderScriptList() {
+            const listEl = document.getElementById('scriptList');
+            
+            if (currentScripts.length === 0) {
+                listEl.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">저장된 대본이 없습니다</p>';
+                return;
+            }
+            
+            listEl.innerHTML = currentScripts.map(script => `
+                <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 2px solid #eee;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 5px 0; color: #333;">📄 ${script.title}</h4>
+                            <p style="margin: 0; font-size: 0.9em; color: #666;">
+                                ${(script.size / 1024).toFixed(1)} KB · ${new Date(script.created).toLocaleString('ko-KR')}
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 5px;">
+                            <button onclick="viewScript('${script.filename}')" style="padding: 8px 12px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                👁️ 보기
+                            </button>
+                            <button onclick="deleteScript('${script.filename}')" style="padding: 8px 12px; background: #e74c3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                🗑️ 삭제
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // AI 대본 자동 생성
+        async function generateScript() {
+            const topic = document.getElementById('topic').value;
+            const duration = parseInt(document.getElementById('selectedDuration').value);
+            
+            if (!topic) {
+                showAlert('error', '주제를 먼저 입력해주세요!');
+                return;
+            }
+            
+            if (!duration || duration <= 0) {
+                showAlert('warning', '⚠️ 영상 길이를 먼저 선택해주세요!');
+                // 영상 길이 섹션으로 스크롤
+                document.querySelector('[data-duration]')?.parentElement?.scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            
+            showAlert('info', `🤖 AI가 ${duration}초 분량 대본을 생성 중입니다...`);
+            
+            try {
+                const response = await fetch('/api/scripts/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        topic: topic,
+                        duration: duration
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('success', `✅ ${duration}초 분량 대본이 생성되었습니다!`);
+                    document.getElementById('scriptContent').value = data.content;
+                    document.getElementById('scriptEditor').style.display = 'block';
+                    
+                    // 대본 에디터로 스크롤
+                    document.getElementById('scriptEditor').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    
+                    await loadScripts();
+                } else {
+                    showAlert('error', '❌ ' + data.error);
+                }
+            } catch (error) {
+                showAlert('error', '❌ 네트워크 오류');
+                console.error('대본 생성 오류:', error);
+            }
+        }
+        
+        // 대본 업로드 영역 표시
+        function showScriptUpload() {
+            document.getElementById('scriptUploadArea').style.display = 'block';
+        }
+        
+        // 대본 업로드 취소
+        function cancelScriptUpload() {
+            document.getElementById('scriptUploadArea').style.display = 'none';
+            document.getElementById('scriptFileInput').value = '';
+        }
+        
+        // 대본 파일 업로드
+        async function uploadScriptFile() {
+            const fileInput = document.getElementById('scriptFileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showAlert('error', '파일을 선택해주세요!');
+                return;
+            }
+            
+            if (!file.name.endsWith('.txt')) {
+                showAlert('error', 'txt 파일만 업로드 가능합니다!');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('/api/scripts', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('success', '✅ 대본이 업로드되었습니다!');
+                    cancelScriptUpload();
+                    await loadScripts();
+                } else {
+                    showAlert('error', '❌ ' + data.error);
+                }
+            } catch (error) {
+                showAlert('error', '❌ 업로드 오류');
+                console.error('업로드 오류:', error);
+            }
+        }
+        
+        // 대본 보기
+        async function viewScript(filename) {
+            try {
+                const response = await fetch(`/api/scripts/${filename}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('scriptContent').value = data.content;
+                    document.getElementById('scriptEditor').style.display = 'block';
+                    document.getElementById('scriptEditor').dataset.currentFile = filename;
+                } else {
+                    showAlert('error', '❌ ' + data.error);
+                }
+            } catch (error) {
+                showAlert('error', '❌ 로드 오류');
+                console.error('대본 로드 오류:', error);
+            }
+        }
+        
+        // 대본 저장
+        async function saveScript() {
+            const content = document.getElementById('scriptContent').value;
+            const topic = document.getElementById('topic').value || 'untitled';
+            
+            if (!content.trim()) {
+                showAlert('error', '대본 내용을 입력해주세요!');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/scripts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: topic,
+                        content: content
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('success', '✅ 대본이 저장되었습니다!');
+                    await loadScripts();
+                } else {
+                    showAlert('error', '❌ ' + data.error);
+                }
+            } catch (error) {
+                showAlert('error', '❌ 저장 오류');
+                console.error('대본 저장 오류:', error);
+            }
+        }
+        
+        // 대본 에디터 닫기
+        function closeScriptEditor() {
+            document.getElementById('scriptEditor').style.display = 'none';
+            document.getElementById('scriptContent').value = '';
+            delete document.getElementById('scriptEditor').dataset.currentFile;
+        }
+        
+        // 대본 삭제
+        async function deleteScript(filename) {
+            if (!confirm('정말 이 대본을 삭제하시겠습니까?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/scripts/${filename}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('success', '✅ 대본이 삭제되었습니다!');
+                    await loadScripts();
+                } else {
+                    showAlert('error', '❌ ' + data.error);
+                }
+            } catch (error) {
+                showAlert('error', '❌ 삭제 오류');
+                console.error('대본 삭제 오류:', error);
+            }
+        }
+        
+        // ============================================================
+        // 스타일 학습 함수들
+        // ============================================================
+        
+        let learnedStyle = null;
+        
+        // 스타일 학습 영역 표시
+        function showStyleLearning() {
+            document.getElementById('styleLearningArea').style.display = 'block';
+            document.getElementById('scriptUploadArea').style.display = 'none';
+        }
+        
+        // 스타일 학습 취소
+        function cancelStyleLearning() {
+            document.getElementById('styleLearningArea').style.display = 'none';
+            document.getElementById('youtubeChannelUrl').value = '';
+            document.getElementById('styleAnalysisResult').style.display = 'none';
+        }
+        
+        // 채널 스타일 학습
+        async function learnChannelStyle() {
+            const channelUrl = document.getElementById('youtubeChannelUrl').value;
+            
+            if (!channelUrl || !channelUrl.trim()) {
+                showAlert('error', 'YouTube 채널 URL을 입력해주세요!');
+                return;
+            }
+            
+            showAlert('info', '🔍 채널 스타일을 분석 중입니다... (30초~1분 소요)');
+            
+            try {
+                const response = await fetch('/api/learn-style', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        channel_url: channelUrl
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    learnedStyle = data.style;
+                    
+                    showAlert('success', '✅ 스타일 분석 완료!');
+                    
+                    // 분석 결과 표시
+                    const resultDiv = document.getElementById('styleAnalysisContent');
+                    resultDiv.innerHTML = `
+                        <div style="margin-bottom: 10px;">
+                            <strong>📺 채널명:</strong> ${data.style.channel_name || '분석 중...'}
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <strong>🎬 분석된 영상:</strong> ${data.style.videos_analyzed || 0}개
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <strong>✍️ 스타일 특징:</strong>
+                            <ul style="margin: 5px 0; padding-left: 20px;">
+                                ${data.style.characteristics?.map(c => `<li>${c}</li>`).join('') || '<li>분석 완료</li>'}
+                            </ul>
+                        </div>
+                        <div style="padding: 10px; background: #f9f9f9; border-radius: 6px; font-size: 0.9em; color: #666;">
+                            💡 이 스타일로 대본을 생성하면 "${data.style.channel_name}"와 비슷한 톤과 구조로 작성됩니다.
+                        </div>
+                    `;
+                    
+                    document.getElementById('styleAnalysisResult').style.display = 'block';
+                } else {
+                    showAlert('error', '❌ ' + data.error);
+                }
+            } catch (error) {
+                showAlert('error', '❌ 네트워크 오류');
+                console.error('스타일 학습 오류:', error);
+            }
+        }
+        
+        // 학습한 스타일로 대본 생성
+        async function generateScriptWithStyle() {
+            const topic = document.getElementById('topic').value;
+            const duration = parseInt(document.getElementById('selectedDuration').value);
+            
+            if (!topic) {
+                showAlert('error', '주제를 먼저 입력해주세요!');
+                return;
+            }
+            
+            if (!duration || duration <= 0) {
+                showAlert('warning', '⚠️ 영상 길이를 먼저 선택해주세요!');
+                return;
+            }
+            
+            if (!learnedStyle) {
+                showAlert('error', '스타일 분석을 먼저 완료해주세요!');
+                return;
+            }
+            
+            showAlert('info', `🎨 "${learnedStyle.channel_name}" 스타일로 대본을 생성 중입니다...`);
+            
+            try {
+                const response = await fetch('/api/scripts/generate-with-style', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        topic: topic,
+                        duration: duration,
+                        style: learnedStyle
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('success', `✅ "${learnedStyle.channel_name}" 스타일 대본이 생성되었습니다!`);
+                    document.getElementById('scriptContent').value = data.content;
+                    document.getElementById('scriptEditor').style.display = 'block';
+                    
+                    // 대본 에디터로 스크롤
+                    document.getElementById('scriptEditor').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    
+                    // 스타일 학습 영역 닫기
+                    cancelStyleLearning();
+                    
+                    await loadScripts();
+                } else {
+                    showAlert('error', '❌ ' + data.error);
+                }
+            } catch (error) {
+                showAlert('error', '❌ 네트워크 오류');
+                console.error('스타일 대본 생성 오류:', error);
+            }
+        }
+        
+        // ============================================================
+        // 목소리 미리듣기 함수
+        // ============================================================
+        
+        // 목소리 미리듣기
+        async function previewVoice(voiceKey, voiceName) {
+            const scriptContent = document.getElementById('scriptContent').value;
+            let text = '';
+            
+            // 대본이 있으면 첫 문장 사용, 없으면 샘플 텍스트
+            if (scriptContent && scriptContent.trim()) {
+                const firstLine = scriptContent.split('\n').find(line => line.trim().length > 0);
+                text = firstLine ? firstLine.substring(0, 100) : `안녕하세요! ${voiceName} 목소리입니다.`;
+            } else {
+                text = `안녕하세요! ${voiceName} 목소리입니다. 경제 뉴스를 전해드립니다.`;
+            }
+            
+            showAlert('info', '🔊 목소리를 생성 중입니다...');
+            
+            try {
+                const response = await fetch('/api/tts/preview', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: text,
+                        voice: voiceKey
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // 미리듣기 플레이어 표시
+                    const player = document.getElementById('voicePreviewPlayer');
+                    const audio = document.getElementById('voicePreviewAudio');
+                    
+                    audio.src = data.url;
+                    player.style.display = 'block';
+                    
+                    // 자동 재생
+                    audio.play();
+                    
+                    showAlert('success', '✅ 재생 중입니다!');
+                } else {
+                    showAlert('error', '❌ ' + data.error);
+                }
+            } catch (error) {
+                showAlert('error', '❌ 네트워크 오류');
+                console.error('목소리 미리듣기 오류:', error);
+            }
+        }
+        
+        // ============================================================
+        // 실시간 날짜/시간 업데이트
+        // ============================================================
+        
+        function updateDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            const dateTimeString = `📅 ${year}년 ${month}월 ${day}일 ${hours}:${minutes}:${seconds}`;
+            document.getElementById('currentDateTime').textContent = dateTimeString;
+        }
+        
+        // 매초마다 시간 업데이트
+        setInterval(updateDateTime, 1000);
+        
+        // 페이지 로드 시 트렌드 및 대본 로딩
+        window.addEventListener('DOMContentLoaded', () => {
+            updateDateTime(); // 즉시 한 번 실행
+            loadTrends();
+            loadScripts();
+        });
+
         function downloadAudio() {
             if (currentResult) {
                 const filename = currentResult.audio_file.split('/').pop();
@@ -583,6 +1863,17 @@
             if (currentResult) {
                 const filename = currentResult.scene_file.split('/').pop();
                 window.location.href = `/api/download/scenes/${filename}`;
+            }
+        }
+
+        function goToPreview() {
+            if (currentResult) {
+                // 결과 데이터를 세션에 저장
+                sessionStorage.setItem('videoResult', JSON.stringify(currentResult));
+                // 프리뷰 페이지로 이동
+                window.location.href = '/preview';
+            } else {
+                alert('생성된 비디오 데이터가 없습니다.');
             }
         }
     </script>
